@@ -1,10 +1,8 @@
-"""Train and compare Ultralytics YOLO models on VisDrone or another YOLO dataset.
+"""Train and compare Ultralytics YOLO models on an explicitly selected dataset.
 
-Example:
-    python compare_models.py --models yolov8n.pt --epochs 3 --fraction 0.1
-
-The dataset is downloaded automatically by Ultralytics when ``--data`` is
-``VisDrone.yaml`` and the local Ultralytics version provides that config.
+A dataset YAML must be provided with --data. Review its class names before
+running training; a dataset photographed from the air need not label airborne
+objects. This script does not select a dataset automatically.
 """
 
 from __future__ import annotations
@@ -45,7 +43,7 @@ CSV_FIELDS = [
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Fine-tune and compare YOLO models on an aerial-image dataset."
+        description="Fine-tune and compare YOLO models on an explicitly selected labelled dataset."
     )
     parser.add_argument(
         "--models",
@@ -55,8 +53,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--data",
-        default="VisDrone.yaml",
-        help="Ultralytics dataset YAML; VisDrone.yaml downloads automatically.",
+        required=True,
+        help="Explicit dataset YAML. Check that its annotated classes match the experiment.",
     )
     parser.add_argument("--epochs", type=int, default=30)
     parser.add_argument("--imgsz", type=int, default=640)
@@ -77,7 +75,7 @@ def parse_args() -> argparse.Namespace:
         "--split",
         choices=("test", "val"),
         default="test",
-        help="Dataset split for final evaluation; VisDrone includes test-dev.",
+        help="Dataset split for final evaluation.",
     )
     parser.add_argument(
         "--conf",
@@ -147,8 +145,8 @@ def main() -> int:
     print(f"Results: {output_path.resolve()}")
     print("The first run may download and prepare the dataset and pretrained weights.\n")
 
-    # Prepare the dataset before timing model training, so VisDrone's one-time
-    # download and annotation conversion do not inflate the first model's time.
+    # Prepare the selected dataset before timing model training so its setup
+    # does not inflate the first model's time.
     print("Checking/preparing dataset...")
     try:
         check_det_dataset(args.data)

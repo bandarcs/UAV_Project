@@ -48,7 +48,7 @@
 | [`predict_drone_or_plane.py`](predict_drone_or_plane.py) | تنبؤ من مصدر باستخدام ملف أوزان محدد. |
 | [`prepare_dataset.py`](prepare_dataset.py) | فحص الصور وملصقات YOLO، وحساب التوزيع، وفصل المقاطع والمكررات بين مجموعات البيانات، وإعداد نسخة بيانات عند الطلب. |
 | [`train_drone_vs_plane.py`](train_drone_vs_plane.py) | كود تدريب وتقييم يتطلب بيانات معلّمة ومتوافقة. |
-| [`compare_models.py`](compare_models.py) | تجربة مقارنة نماذج؛ إعدادها الافتراضي يستخدم VisDrone ولا يمثل تقييمًا للأجسام الطائرة. |
+| [`compare_models.py`](compare_models.py) | مقارنة نماذج على ملف بيانات يُحدَّد صراحةً؛ يجب مراجعة فئاته قبل التدريب، ولا تُختار بيانات تلقائيًا. |
 | [`Detect airborne_targets.py`](Detect%20airborne_targets.py) | نسخة أقدم من سكربت الكشف والتتبع. |
 | [`run.bat`](run.bat) | يشغل تجربة `detect_plane_better.py`. |
 
