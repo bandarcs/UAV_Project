@@ -1,0 +1,42 @@
+# Python environments and caches
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Private configuration and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local datasets, model weights and generated results
+datasets/
+weights/
+runs/
+runs_model_comparison/
+results/
+compare_results.csv
+*.pt
+*.pth
+*.onnx
+*.engine
+*.tflite
+
+# Videos stay local; share their original source separately
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+
+# Editor and operating system files
+.vscode/
+.idea/
+desktop.ini
+Thumbs.db
+.DS_Store
