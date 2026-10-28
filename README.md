@@ -1,34 +1,126 @@
-# UAV Project
+<div dir="rtl">
 
-University research prototype for detecting and tracking airborne objects in video. This private repository shares the existing source code with the project team.
+# مشروع كشف وتتبع الأجسام الجوية — UAV Project
 
-## Current code
+هذا المستودع يجمع كود مشروع التخرج، ويتيح للفريق الاطلاع عليه والعمل على نسخة مشتركة. نركز على الأجسام الطائرة، مثل الدرونات والطائرات والمروحيات، حسب الفئات التي تتوفر لها بيانات وأوزان نموذج مناسبة.
 
-- `detect_airborne_targets.py`: video/camera analysis with Ultralytics YOLO and ByteTrack; writes annotated video and tracking records.
-- `track_aircraft.py`: a separate SAHI detection experiment. Despite its filename, it does not implement ByteTrack tracking.
-- `detect_plane_better.py`: an earlier airplane detection experiment.
-- `predict_drone_or_plane.py`, `train_drone_vs_plane.py`, and `compare_models.py`: earlier prediction and training experiments.
-- `Detect airborne_targets.py`: an earlier copy, kept to preserve the existing work. Use `detect_airborne_targets.py` as the main script.
-- `run.bat`: the existing launcher for the earlier detection experiment.
+## فكرة المشروع
 
-The code is an unfinished prototype. The automatic choice of model and analysis method described in the report is a proposed feature. The current `auto` image-size option is a heuristic; it is not a validated accuracy measure. Detection labels depend on the supplied model weights. Standard COCO weights do not provide every airborne class discussed in the project. Past experiments on VisDrone do not validate airborne-object recognition.
+نريد نظامًا يستقبل **بثًا مباشرًا من كاميرا الدرون**، أو يسمح للمستخدم **باختيار مقطع مسجّل** للتجربة والتحليل. بعد ذلك يتولى النظام التحليل تلقائيًا، ويعرض الأجسام المكتشفة ويتابع حركتها أثناء معالجة الفيديو.
 
-## Run the existing main script
+**في التصميم النهائي، المستخدم يختار مصدر الفيديو ويتابع النتائج. النظام هو الذي يختار الموديل والتقنية والإعدادات وحجم صورة التحليل والموارد المناسبة.** هذا الاختيار التلقائي جزء من الخطة، وليس ميزة مكتملة في الكود الحالي.
 
-Use a local video that you are allowed to analyse and a compatible weights file. Videos, datasets and model weights are deliberately not stored in this Git repository.
+## دور المستخدم ودور النظام
+
+| المستخدم | النظام في التصميم المقترح |
+| --- | --- |
+| يختار البث المباشر أو مقطعًا مسجّلًا. | يقرأ إطارات الفيديو ويفحص جودتها وحجمها. |
+| يتابع النتائج ويراجع الحالات غير الواضحة. | يختار موديل الذكاء الاصطناعي وطريقة التحليل وإعداداتها تلقائيًا. |
+| يراجع النتائج المحفوظة عند الحاجة. | يكشف الأجسام ويتتبعها، ويحدّث العرض ويحفظ النتائج المتاحة. |
+
+مسار العمل المقترح: **إدخال الفيديو ← استخراج الإطارات ← إعداد تلقائي ← كشف الأجسام ← تتبّعها ← عرض النتائج وحفظها.**
+
+اختيار موديل مدرّب لا يعني تدريب موديل جديد أثناء تشغيل الفيديو. التدريب مرحلة منفصلة تحتاج بيانات معلّمة وتقييمًا.
+
+## وش الموجود حاليًا؟
+
+المشروع **نموذج أولي قيد التطوير**. الجدول التالي يصف ما يوجد في الكود، ولا يعني أن كل جزء اختُبر في تجربة متكاملة.
+
+| الجزء | الوضع الحالي |
+| --- | --- |
+| كشف الأجسام باستخدام YOLO | موجود في السكربتات، ويتعرف فقط على الفئات التي دُرّبت عليها أوزان النموذج المستخدم. |
+| التتبّع باستخدام ByteTrack | موجود في السكربت الرئيسي، مع حفظ فيديو معلّم وسجلات للتتبّع. |
+| تحليل الفيديو أو مصدر كاميرا | موجود في الكود؛ الربط ببث درون حقيقي لم يُتحقق منه بعد. |
+| تقسيم الصورة باستخدام SAHI | موجود كتجربة منفصلة في `track_aircraft.py`، وليس اختيارًا تلقائيًا مدمجًا مع كل المسار. |
+| اختيار حجم صورة التحليل تلقائيًا | يوجد خيار تجريبي `auto`؛ يعتمد على تقدير أولي، ولا يمثل قياسًا لدقة النموذج. |
+| اختيار الموديل والتقنية والموارد تلقائيًا | مخطط له، ويحتاج تنفيذًا واختبارًا. |
+| لوحة عرض متكاملة، حماية نقل البيانات، وربط المحاكي | ضمن العمل المستقبلي. |
+
+أوزان YOLO العامة لا تشمل كل الفئات المطلوبة للمشروع. إضافة اسم فئة في الكود لا تجعل النموذج قادرًا على كشفها؛ نحتاج أوزانًا مدرّبة عليها. كذلك، التجارب السابقة على VisDrone لا تُعد دليلًا على جودة كشف الأجسام الطائرة المستهدفة هنا.
+
+## ملفات الكود المهمة
+
+| الملف | وظيفته |
+| --- | --- |
+| `detect_airborne_targets.py` | نقطة البداية الحالية: كشف وتتبع، مع إخراج الفيديو وسجلات النتائج. |
+| `track_aircraft.py` | تجربة كشف باستخدام SAHI. اسم الملف لا يعني أنه ينفّذ ByteTrack. |
+| `detect_plane_better.py` | تجربة سابقة لكشف الطائرات. |
+| `predict_drone_or_plane.py` | تجربة سابقة للتنبؤ باستخدام أوزان يحددها المستخدم. |
+| `train_drone_vs_plane.py` | سكربت تدريب يحتاج بيانات متوافقة ومعلّمة. |
+| `compare_models.py` | تجارب تدريب ومقارنة سابقة؛ لا نعتمد نتائجها كاختبار نهائي للمشروع. |
+| `Detect airborne_targets.py` | نسخة أقدم محفوظة. نبدأ حاليًا بالملف `detect_airborne_targets.py`. |
+| `run.bat` | يشغّل التجربة السابقة الموجودة في `detect_plane_better.py`. |
+| `requirements.txt` | إصدارات المكتبات الأساسية المسجلة من بيئة التطوير الحالية. |
+
+## المراجع العلمية
+
+نستخدم هذه الدراسات لفهم الأساليب السابقة وبناء المقارنة في التقرير. نتائجها تخص تجارب أصحابها، وليست نتائج مشروعنا.
+
+| المرجع | ما الذي نستفيد منه؟ |
+| --- | --- |
+| [تقييم طرق كشف وتتبع الدرونات — 2024](https://arxiv.org/abs/2410.00285) | مقارنة YOLOv5 وYOLOv8 مع ByteTrack وBoT-SORT. النسخة المرتبطة منشورة على arXiv. |
+| [GL-DT — نسخة arXiv لعام 2025](https://arxiv.org/abs/2510.09092v1) | فكرة الجمع بين الكشف العام والمحلي، ومعالجة انقطاع التتبّع وتبدّل هوية الجسم. التقسيم المحلي فيها يختلف عن SAHI. |
+| [UAVSwarm — 2022](https://doi.org/10.3390/rs14112601) | كشف وتتبع عدة درونات في المشهد، ومقارنة استقرار أرقام التتبّع. |
+| [كشف وتتبع الدرونات تحت ضباب اصطناعي — 2026](https://doi.org/10.3390/jimaging12090432) | فهم أثر ضعف الرؤية على الكشف والتتبّع. |
+
+الاختلاف الذي نريد دراسته في مشروعنا هو **تبسيط الاستخدام وإسناد اختيار إعدادات التحليل للنظام في وضعي البث والمقطع المسجّل**. لا ندّعي تفوقًا على هذه الدراسات قبل إجراء مقارنة عادلة ببيانات ومقاييس واضحة.
+
+## من أين نأخذ المقاطع والبيانات؟
+
+هذه مصادر مرشحة للتجارب. وضع روابطها هنا لا يعني أننا نزّلناها أو درّبنا النموذج عليها.
+
+| المصدر | فائدته للمشروع |
+| --- | --- |
+| [MOT-FLY](https://github.com/CZC-123/MOT-FLY) | مرشح لتجربة منظور درون يصوّر درونات أخرى، مع بيانات لتقييم التتبّع. |
+| [بيانات Halmstad متعددة المستشعرات](https://github.com/DroneDetectionThesis/Drone-detection-dataset) | تشمل فئات الطائرة والدرون والمروحية والطائر. تصويرها الأرضي يكمل الاختبار، لكنه لا يطابق منظور كاميرا درون طائر. |
+| [DUT Anti-UAV](https://github.com/wangdongdut/DUT-Anti-UAV) | مصدر لصور وتسلسلات درونات، وله صلة بمراجع المقارنة. |
+| [UAVSwarm](https://github.com/UAVSwarm/UAVSwarm-dataset) | مرشح لاختبار تتبّع عدة درونات متقاربة في المشهد نفسه. |
+
+قبل استخدام أي مقطع، نسجل مصدره وترخيصه واسم التسلسل والفئات الموجودة فيه. نستخدم الملفات الأصلية المناسبة، ونفصل بيانات التدريب عن الاختبار حسب التسلسلات؛ لا نخلط إطارات المقطع نفسه بينهما. ظهور النتيجة على فيديو تجريبي وحده لا يكفي لحساب الدقة دون بيانات مرجعية معلّمة.
+
+## المحاكي
+
+الخيار المقترح هو [Gazebo](https://gazebosim.org/docs/all/getstarted/)، مع [دليل ربطه بـPX4](https://docs.px4.io/main/en/sim_gazebo_gz/). يحتاج تجهيزًا محليًا؛ الرابط دليل استخدام وليس محاكيًا جاهزًا داخل المتصفح. **لم نثبّت المحاكي أو نربطه بالكود ضمن إعداد هذا المستودع.**
+
+يمكن أن تبدأ أول تجربة بمقطع موثق من أحد المصادر السابقة، ثم نجهز المحاكاة عندما نحتاج سيناريو يمكن التحكم فيه وتكراره.
+
+## الخطوات القادمة
+
+1. اختيار مقطع موثق وبيانات مناسبة للفئات المطلوبة، والتأكد من توافق أوزان النموذج معها.
+2. إجراء تجربة أساسية قابلة للتكرار للكشف والتتبّع، وحفظ إعداداتها ومخرجاتها.
+3. حساب جودة الكشف وثبات التتبّع وسرعة المعالجة وزمن التأخير باستخدام بيانات مرجعية مناسبة.
+4. تنفيذ اختيار الموديل وطريقة التحليل والإعدادات تلقائيًا، ثم اختباره مقابل التجربة الأساسية.
+5. جمع وضعي البث والمقطع المسجّل في واجهة واضحة، مع تحديث النتائج أثناء المعالجة وحفظها.
+6. تجهيز المحاكي واختبار الإدخال منه، ثم استكمال حماية نقل البيانات والتحقق من العمل المتكامل.
+
+هذه خطة عمل، وليست قائمة بميزات أُنجزت أو بنتائج تحققت بالفعل.
+
+## التشغيل المبدئي
+
+نبدأ بالسكربت الرئيسي. نحتاج بيئة Python مجهزة، وفيديو محليًا، وملف أوزان متوافقًا موجودًا على الجهاز. النموذج الأولي الحالي يستخدم مسار الأوزان في أمر التشغيل؛ هذا سيختلف عن تجربة المستخدم المقترحة بعد تنفيذ الإعداد التلقائي.
+
+<div dir="ltr" align="left">
 
 ```powershell
 .\venv\Scripts\python.exe detect_airborne_targets.py --help
 .\venv\Scripts\python.exe detect_airborne_targets.py --source "path\to\video.mp4" --weights "path\to\model.pt" --imgsz 1280
 ```
 
-The second command is an example, not a newly verified experiment. The model path must point to an existing weights file. Outputs are written under `runs/airborne` by default.
+</div>
 
-The existing development environment uses Python 3.14.8. `requirements.txt` records its main package versions. The GPU machine uses the CUDA 12.8 builds of PyTorch and torchvision. A clean installation on another computer has not yet been verified; match the PyTorch build to that computer before running experiments.
+هذه أوامر توضيحية، وليست تجربة جديدة تم تنفيذها. نستبدل المسارات بملفاتنا الفعلية. المخرجات الافتراضية تُحفظ داخل `runs/airborne`.
 
-## Work as a team
+بيئة التطوير الحالية تستخدم **Python 3.14.8**، مع إصدارات المكتبات في `requirements.txt`. جهاز التطوير يستخدم إصدارات PyTorch وtorchvision المبنية لـCUDA 12.8. إعداد نسخة نظيفة على جهاز آخر لم يُختبر بعد؛ يجب مطابقة بناء PyTorch مع الجهاز قبل إجراء التجارب.
 
-After the repository owner adds your GitHub account as a collaborator, clone the repository:
+الفيديوهات والبيانات والأوزان وبيئة `venv` لا تُرفع إلى GitHub. ملف `.gitignore` يستثنيها، ويستثني ملفات الإعدادات الخاصة مثل `.env`.
+
+## مشاركة العمل بين الزملاء
+
+المستودع **خاص بالفريق**. يضيف مالك المستودع حساب كل زميل من إعدادات المتعاونين أولًا؛ إرسال الرابط وحده لا يمنح الدخول أو التعديل.
+
+بعد قبول الدعوة، يأخذ الزميل نسخة من الكود ويعمل على فرع خاص بتعديله:
+
+<div dir="ltr" align="left">
 
 ```powershell
 git clone https://github.com/bandarcs/UAV_Project.git
@@ -36,6 +128,12 @@ cd UAV_Project
 git switch -c your-change-name
 ```
 
-Commit changes on your branch, push the branch, and open a pull request for review. The repository stays private. A link alone does not give another account access.
+</div>
 
-Do not commit videos, datasets, weights, credentials, or the virtual environment. Record the source and licence of any material used in future experiments. No new training, simulation, or evaluation was performed as part of setting up this repository.
+نحفظ التعديل في الفرع، ونرفعه، ثم نفتح طلب مراجعة **Pull Request** قبل دمجه في `main`. نكتب باختصار ما تغيّر وكيف تم التحقق منه، ونتجنب رفع البيانات الكبيرة أو أي مفاتيح وصول.
+
+[تقرير المشروع والرسومات على Google Docs](https://docs.google.com/document/d/19CcMctNZK8znEe7cA6AAcPFP5l49S0wZL98S5AhCRVk/edit)
+
+**ما أُنجز في إعداد المستودع:** رفع ملفات الكود، إضافة دليل المشروع والاعتماديات، وربط المجلد المحلي بالمستودع الخاص. لم يتضمن ذلك تدريبًا جديدًا أو تجربة محاكاة أو قياس دقة جديدًا.
+
+</div>
