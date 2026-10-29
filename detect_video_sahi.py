@@ -2,7 +2,7 @@ r"""
 Small / distant airplane detection using SAHI (sliced inference).
 
 Run:
-    .\venv\Scripts\python.exe track_aircraft.py
+    .\venv\Scripts\python.exe detect_video_sahi.py
 
 Optional:
     --source VIDEO.mp4   video file to analyze
@@ -21,7 +21,7 @@ from sahi import AutoDetectionModel
 from sahi.predict import get_sliced_prediction
 
 BOX_WIDTH = 54
-AIRPLANE_CLASS_ID = 4  # COCO class id for airplane
+AIRPLANE_NAMES = {"airplane", "aeroplane", "aircraft", "plane"}
 
 
 def table_row(label, value):
@@ -37,7 +37,18 @@ def main():
     parser.add_argument("--slice", type=int, default=640)
     parser.add_argument("--overlap", type=float, default=0.2)
     parser.add_argument("--no_show", action="store_true")
+    parser.add_argument("--output", default="runs/sahi/annotated.mp4")
     args = parser.parse_args()
+    from pathlib import Path
+    import math
+    if not 0 <= args.conf <= 1 or args.slice < 32 or not 0 <= args.overlap < 1:
+        parser.error("Require conf in [0,1], slice >= 32 and overlap in [0,1).")
+    if not Path(args.source).is_file() or not Path(args.model).is_file():
+        parser.error("Source video and model weights must exist locally.")
+    output = Path(args.output)
+    if output.exists():
+        parser.error("Output already exists; choose another --output.")
+    output.parent.mkdir(parents=True, exist_ok=True)
 
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     detection_model = AutoDetectionModel.from_pretrained(
@@ -48,12 +59,20 @@ def main():
     )
 
     cap = cv2.VideoCapture(args.source)
-    video_fps = cap.get(cv2.CAP_PROP_FPS) or 30
+    if not cap.isOpened():
+        raise SystemExit("Could not open source video.")
+    video_fps = cap.get(cv2.CAP_PROP_FPS)
+    if not math.isfinite(video_fps) or video_fps <= 0:
+        video_fps = 30
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    output_path = "output_sahi.mp4"
+    output_path = str(output)
     writer = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*"mp4v"),
                              video_fps, (width, height))
+
+    if not writer.isOpened():
+        cap.release()
+        raise SystemExit("Could not create output video.")
 
     total_frames = 0
     detected_frames = 0
@@ -62,49 +81,51 @@ def main():
     max_conf = 0.0
     start_time = time.time()
 
-    while True:
-        ok, frame = cap.read()
-        if not ok:
-            break
-        total_frames += 1
-
-        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        result = get_sliced_prediction(
-            rgb,
-            detection_model,
-            slice_height=args.slice,
-            slice_width=args.slice,
-            overlap_height_ratio=args.overlap,
-            overlap_width_ratio=args.overlap,
-            verbose=0,
-        )
-
-        found = False
-        for obj in result.object_prediction_list:
-            if obj.category.id != AIRPLANE_CLASS_ID:
-                continue
-            found = True
-            score = obj.score.value
-            total_boxes += 1
-            conf_sum += score
-            max_conf = max(max_conf, score)
-            x1, y1, x2, y2 = (int(obj.bbox.minx), int(obj.bbox.miny),
-                              int(obj.bbox.maxx), int(obj.bbox.maxy))
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            cv2.putText(frame, f"airplane {score:.0%}", (x1, max(y1 - 8, 15)),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-        if found:
-            detected_frames += 1
-
-        writer.write(frame)
-        if not args.no_show:
-            cv2.imshow("SAHI airplane detection (press Q to stop)", frame)
-            if cv2.waitKey(1) & 0xFF == ord("q"):
+    try:
+        while True:
+            ok, frame = cap.read()
+            if not ok:
                 break
+            total_frames += 1
 
-    cap.release()
-    writer.release()
-    cv2.destroyAllWindows()
+            rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            result = get_sliced_prediction(
+                rgb,
+                detection_model,
+                slice_height=args.slice,
+                slice_width=args.slice,
+                overlap_height_ratio=args.overlap,
+                overlap_width_ratio=args.overlap,
+                verbose=0,
+            )
+
+            found = False
+            for obj in result.object_prediction_list:
+                if obj.category.name.lower() not in AIRPLANE_NAMES:
+                    continue
+                found = True
+                score = obj.score.value
+                total_boxes += 1
+                conf_sum += score
+                max_conf = max(max_conf, score)
+                x1, y1, x2, y2 = (int(obj.bbox.minx), int(obj.bbox.miny),
+                                  int(obj.bbox.maxx), int(obj.bbox.maxy))
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                cv2.putText(frame, f"airplane {score:.0%}", (x1, max(y1 - 8, 15)),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+            if found:
+                detected_frames += 1
+
+            writer.write(frame)
+            if not args.no_show:
+                cv2.imshow("SAHI airplane detection (press Q to stop)", frame)
+                if cv2.waitKey(1) & 0xFF == ord("q"):
+                    break
+
+    finally:
+        cap.release()
+        writer.release()
+        cv2.destroyAllWindows()
 
     elapsed = time.time() - start_time
     detection_rate = detected_frames / total_frames * 100 if total_frames else 0

@@ -14,3 +14,5 @@ The code currently receives model weights and several settings through the comma
 Output filenames are fixed. Use a separate `--output-dir` for each run to preserve earlier results. A preview is shown unless `--no-show` is passed. The script saves MP4 and CSV files; it does not provide a saved-session review interface.
 
 The dependency versions record the development environment. A clean installation on another machine has not been verified in this documentation review. Recognition capabilities depend on the loaded weights and their class definitions.
+
+For the separate recorded-video workflow without a model/image-size picker, see [automation](automation.md).

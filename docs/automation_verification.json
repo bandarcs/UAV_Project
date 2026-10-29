@@ -1,0 +1,109 @@
+{
+  "code_sha256": "a3ea3acce3273389e3fb574203416b7f44ef7fb69c1e7c34001e0c8b2e35473d",
+  "runs": [
+    {
+      "clip": "test01.mp4",
+      "model": "yolov8s.pt",
+      "size": 1280,
+      "frames": 201,
+      "analysed": 111,
+      "detections": 444,
+      "calibration_s": 7.57,
+      "processing_s": 10.0,
+      "fps": 20.09,
+      "rate_changes": 1,
+      "classes": {
+        "airplane": 443,
+        "bird": 1
+      }
+    },
+    {
+      "clip": "test02.mp4",
+      "model": "yolov8s.pt",
+      "size": 1280,
+      "frames": 511,
+      "analysed": 412,
+      "detections": 240,
+      "calibration_s": 8.82,
+      "processing_s": 24.78,
+      "fps": 20.62,
+      "rate_changes": 4,
+      "classes": {
+        "airplane": 240
+      }
+    },
+    {
+      "clip": "test04.mp4",
+      "model": "yolov8s.pt",
+      "size": 1280,
+      "frames": 615,
+      "analysed": 278,
+      "detections": 267,
+      "calibration_s": 8.69,
+      "processing_s": 71.52,
+      "fps": 8.6,
+      "rate_changes": 4,
+      "classes": {
+        "airplane": 267
+      }
+    },
+    {
+      "clip": "V_AIRPLANE_001.mp4",
+      "model": "yolov8s.pt",
+      "size": 640,
+      "frames": 327,
+      "analysed": 327,
+      "detections": 319,
+      "calibration_s": 8.5,
+      "processing_s": 7.93,
+      "fps": 41.23,
+      "rate_changes": 0,
+      "classes": {
+        "airplane": 319
+      }
+    },
+    {
+      "clip": "V_BIRD_001.mp4",
+      "model": "yolov8m.pt",
+      "size": 640,
+      "frames": 305,
+      "analysed": 246,
+      "detections": 0,
+      "calibration_s": 7.97,
+      "processing_s": 7.47,
+      "fps": 40.84,
+      "rate_changes": 2,
+      "classes": {}
+    },
+    {
+      "clip": "V_DRONE_001.mp4",
+      "model": "yolov8x.pt",
+      "size": 640,
+      "frames": 301,
+      "analysed": 171,
+      "detections": 103,
+      "calibration_s": 5.06,
+      "processing_s": 6.29,
+      "fps": 47.88,
+      "rate_changes": 3,
+      "classes": {
+        "airplane": 103
+      }
+    },
+    {
+      "clip": "V_HELICOPTER_001.mp4",
+      "model": "yolov8s.pt",
+      "size": 640,
+      "frames": 301,
+      "analysed": 301,
+      "detections": 224,
+      "calibration_s": 6.62,
+      "processing_s": 6.17,
+      "fps": 48.77,
+      "rate_changes": 0,
+      "classes": {
+        "airplane": 224
+      }
+    }
+  ]
+}

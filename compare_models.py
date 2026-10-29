@@ -131,6 +131,10 @@ def main() -> int:
         0 if torch.cuda.is_available() else "cpu"
     )
     output_path = Path(args.output)
+    if output_path.exists():
+        raise SystemExit("Results CSV already exists; choose another --output.")
+    if not Path(args.data).is_file():
+        raise SystemExit("Dataset YAML must exist locally; review it before training.")
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Each invocation starts a fresh CSV. Results are written after every model,
@@ -149,7 +153,7 @@ def main() -> int:
     # does not inflate the first model's time.
     print("Checking/preparing dataset...")
     try:
-        check_det_dataset(args.data)
+        check_det_dataset(args.data, autodownload=False)
     except Exception as exc:
         raise SystemExit(
             f"Could not load dataset '{args.data}': {type(exc).__name__}: {exc}"

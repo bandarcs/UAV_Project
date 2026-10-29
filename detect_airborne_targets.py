@@ -3,7 +3,7 @@ r"""Detect and track airborne objects in a video with a trained Ultralytics YOLO
 IMPORTANT:
     This program can only find object types that are already included in the
     model weights. The standard yolov8*.pt COCO weights include airplane, but
-    they do not include helicopter, drone, or missile classes. Those classes
+    they do not include helicopter or drone classes. Those classes
     require a model trained on labeled examples of them.
 
 Example (run from the UAV project folder):
@@ -30,7 +30,7 @@ AIRBORNE_LABELS = {
     "airplane": ("airplane", "aeroplane", "aircraft", "plane", "jet"),
     "helicopter": ("helicopter", "chopper"),
     "drone": ("drone", "uav", "quadcopter", "quadrotor", "multirotor"),
-    "missile": ("missile", "rocket"),
+    "bird": ("bird",),
 }
 
 
@@ -146,7 +146,7 @@ def main():
     print("Classes in the chosen model:", ", ".join(class_names.values()))
     if not class_ids:
         print("This model has no recognized airborne class names, so there is nothing to detect.")
-        print("Train or choose weights whose class names include airplane, helicopter, drone, or missile.")
+        print("Train or choose weights whose class names include airplane, helicopter or drone.")
         return
 
     missing_groups = sorted(set(AIRBORNE_LABELS) - found_groups)
@@ -156,6 +156,8 @@ def main():
         print("Those types will not be detected until you use weights trained to recognize them.")
 
     output_dir = Path(args.output_dir)
+    if any((output_dir / name).exists() for name in ("airborne_tracking.mp4", "airborne_detections.csv")):
+        parser.error("Output files already exist; choose a new --output-dir.")
     output_dir.mkdir(parents=True, exist_ok=True)
     video_path = output_dir / "airborne_tracking.mp4"
     csv_path = output_dir / "airborne_detections.csv"

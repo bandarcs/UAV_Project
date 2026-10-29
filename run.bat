@@ -1,6 +1,9 @@
 @echo off
-chcp 65001 >nul
 cd /d "%~dp0"
-venv\Scripts\python.exe detect_plane_better.py %*
-echo.
-pause
+if "%~1"=="" (
+  echo Drag a recorded video onto run.bat or pass its path.
+  pause
+  exit /b 2
+)
+venv\Scripts\python.exe automation.py %*
+if errorlevel 1 pause

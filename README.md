@@ -6,6 +6,33 @@
 
 في تصميم النظام، توفر كاميرا الطائرة بدون طيار **UAV** مدخل فيديو واحدًا. يتولى النظام استقبال الفيديو وقراءة الإطارات والكشف والتتبع، ويشاهد المستخدم النتائج. المقصود بالطائرة هنا هو منصة التصوير التي تحمل الكاميرا؛ وهي مختلفة عن الأجسام التي تظهر داخل الفيديو.
 
+<div dir="ltr">
+
+## Automatic recorded-video experiment
+
+[`automation.py`](automation.py) receives one local video and automatically
+calibrates the available model, analysis size and analysis stride. No model or
+image-size selection is required from the user. After processing, it opens the annotated video in the default player. It writes its measurements,
+selection reason, supported/missing classes, annotated video and CSV outputs.
+This is the main automatic offline entry point. Separate manual and SAHI
+baselines are retained for controlled comparisons.
+
+```powershell
+.\venv\Scripts\python.exe automation.py test01.mp4
+```
+
+[Automation method and limits](docs/automation.md) ·
+[Four-class dataset reference](docs/dataset_sources.md) · [Verification](docs/automation_verification.md) · [Code map](docs/code_review.md)
+
+The selection policy measures runtime and uses documented heuristics. It does
+not establish best accuracy, train models, learn by itself or switch models
+within a running video. Standard local weights currently cover airplane and
+bird; drone and helicopter require compatible trained weights. Analysis-stride
+changes are logged, and skipped frames are marked rather than counted as
+negative detections.
+
+</div>
+
 ## فكرة النظام والتقنيات
 
 يمر الفيديو في التصميم بالمراحل التالية:
@@ -21,11 +48,11 @@
 
 يسند التصميم اختيار الموديل وحجم إطار التحليل ومعدل المعالجة والطريقة والإعدادات إلى النظام. المستخدم يشاهد المخرجات، ولا يتولى تحليل الفيديو أو إعداد الذكاء الاصطناعي في هذا التصميم.
 
-**حالة الكود:** النسخة الحالية نموذج أولي يقرأ فيديو أو مصدر كاميرا ويستخدم أوزانًا وإعدادات من أمر التشغيل. يوجد اختيار تجريبي لحجم صورة التحليل؛ أما اختيار الموديل والطريقة تلقائيًا وربط كاميرا طائرة فعلية فلم يكتمل تنفيذهما. لذلك يميز التقرير بين التصميم المطلوب والوظائف الموجودة في الكود.
+**حالة الكود:** نقطة التشغيل التلقائي هي `automation.py` للفيديو المسجل. تختار الأوزان وحجم التحليل بمعايرة زمنية، ثم تعدّل معدل تحليل الإطارات أثناء التشغيل. مسار الكشف اليدوي مستقل للتجارب التي تتطلب إعدادات ثابتة. اختيار SAHI التلقائي والتصنيف بأربع فئات ليسا مثبتين في هذه النسخة.
 
 ## الملف الرئيسي والمدخلات والمخرجات
 
-الملف الرئيسي هو [`detect_airborne_targets.py`](detect_airborne_targets.py). يقرأ الإطارات بالتتابع، ويطبق الكشف والتتبع، ويعرض الفيديو أثناء المعالجة ما لم يُستخدم `--no-show`.
+ملف التشغيل اليدوي هو [`detect_airborne_targets.py`](detect_airborne_targets.py). يقرأ الإطارات بالتتابع، ويطبق الكشف والتتبع، ويعرض الفيديو أثناء المعالجة ما لم يُستخدم `--no-show`.
 
 | العنصر | الوصف |
 | --- | --- |
@@ -42,15 +69,12 @@
 
 | الملف | الوظيفة |
 | --- | --- |
+| [`automation.py`](automation.py) | Recorded-video automatic setup, adaptive analysis rate, tracking and result playback. |
 | [`detect_airborne_targets.py`](detect_airborne_targets.py) | معالجة الفيديو، والكشف والتتبع، والعرض، وحفظ MP4 وCSV. |
-| [`track_aircraft.py`](track_aircraft.py) | كشف باستخدام SAHI؛ لا يحتوي على تتبع ByteTrack. |
-| [`detect_plane_better.py`](detect_plane_better.py) | تجربة كشف طائرات باستخدام YOLO مع ملخص للتشغيل. |
-| [`predict_drone_or_plane.py`](predict_drone_or_plane.py) | تنبؤ من مصدر باستخدام ملف أوزان محدد. |
+| [`detect_video_sahi.py`](detect_video_sahi.py) | كشف باستخدام SAHI؛ لا يحتوي على تتبع ByteTrack. |
 | [`prepare_dataset.py`](prepare_dataset.py) | فحص الصور وملصقات YOLO، وحساب التوزيع، وفصل المقاطع والمكررات بين مجموعات البيانات، وإعداد نسخة بيانات عند الطلب. |
-| [`train_drone_vs_plane.py`](train_drone_vs_plane.py) | كود تدريب وتقييم يتطلب بيانات معلّمة ومتوافقة. |
+| [`train_detector.py`](train_detector.py) | كود تدريب وتقييم يتطلب بيانات معلّمة ومتوافقة. |
 | [`compare_models.py`](compare_models.py) | مقارنة نماذج على ملف بيانات يُحدَّد صراحةً؛ يجب مراجعة فئاته قبل التدريب، ولا تُختار بيانات تلقائيًا. |
-| [`Detect airborne_targets.py`](Detect%20airborne_targets.py) | نسخة أقدم من سكربت الكشف والتتبع. |
-| [`run.bat`](run.bat) | يشغل تجربة `detect_plane_better.py`. |
 
 ## البيانات والتقييم
 
