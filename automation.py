@@ -124,7 +124,15 @@ def write_json(path, data):
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False, allow_nan=False), encoding="utf-8")
 
 
-def run(video: Path, output: Path, project_root: Path):
+def read_frames(capture):
+    while True:
+        ok, frame = capture.read()
+        if not ok:
+            return
+        yield frame
+
+
+def run(video: Path, output: Path, project_root: Path, *, frame_source=read_frames, calibration_end=None):
     import cv2
     import torch
     from ultralytics import YOLO
@@ -139,6 +147,7 @@ def run(video: Path, output: Path, project_root: Path):
     write_json(status_path, status)
     cap = cv2.VideoCapture(str(video))
     writer = None
+    frame_iterator = None
     counts = {"decoded_frames": 0, "analysed_frames": 0, "skipped_frames": 0,
               "written_frames": 0, "detection_rows": 0}
     try:
@@ -149,7 +158,11 @@ def run(video: Path, output: Path, project_root: Path):
         total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         if width < 2 or height < 2 or not math.isfinite(fps) or fps <= 0 or total < 1:
             raise ValueError("Video dimensions, frame count and a valid frame rate are required.")
-        positions = sorted({min(total - 1, round((total - 1) * f)) for f in POLICY["sample_fractions"]})
+        # In a replay of a live session, startup can sample only the
+        # frames available before the first simulated connection loss.
+        sample_count = total if calibration_end is None else min(total, calibration_end)
+        positions = sorted({round((sample_count - 1) * fraction) for fraction in POLICY["sample_fractions"]})
+        status["calibration_sample_frames"] = positions
         samples, quality = [], []
         for position in positions:
             cap.set(cv2.CAP_PROP_POS_FRAMES, position)
@@ -255,10 +268,8 @@ def run(video: Path, output: Path, project_root: Path):
             fw.writerow(["frame", "analysed", "stride", "detections", "analysis_ms"])
             sw.writerow(["effective_frame", "stride", "reason"])
             sw.writerow([0, stride, "startup calibration"])
-            while True:
-                ok, frame = cap.read()
-                if not ok:
-                    break
+            frame_iterator = iter(frame_source(cap))
+            for frame in frame_iterator:
                 if frame is None or not frame.size:
                     raise ValueError("An empty decoded frame was encountered.")
                 index = counts["decoded_frames"]
@@ -338,6 +349,9 @@ def run(video: Path, output: Path, project_root: Path):
         write_json(status_path, status)
         raise
     finally:
+        close_frames = getattr(frame_iterator, "close", None)
+        if close_frames is not None:
+            close_frames()
         cap.release()
         if writer is not None:
             writer.release()

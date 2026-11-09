@@ -1,2 +1,107 @@
-<?xml version='1.0' encoding='utf-8'?>
-<svg xmlns="http://www.w3.org/2000/svg" width="4200" height="2800" viewBox="0 0 2100 1400"><rect width="2100" height="1400" fill="white" /><defs><marker id="arr" markerWidth="10" markerHeight="9" refX="9" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9Z" fill="#477F7A" /></marker><marker id="open" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0L9 5L0 10" fill="none" stroke="#477F7A" stroke-width="1.5" /></marker></defs><g font-family="Arial, sans-serif" fill="#203B38" text-anchor="middle"><rect x="300" y="60" width="1450" height="1270" fill="white" stroke="#477F7A" stroke-width="3" /><text x="1025" y="115" font-size="31" font-weight="bold">Airborne Object Detection and Tracking System</text><rect x="20" y="270" width="220" height="165" fill="#F2F7F6" stroke="#477F7A" stroke-width="2" /><text x="130.0" y="331.57" font-size="23">UAV</text><text x="130.0" y="360.32" font-size="23">Camera</text><text x="130.0" y="389.07" font-size="23">Video Source</text><circle cx="1900" cy="1095" r="27" fill="white" stroke="#477F7A" stroke-width="3" /><path d="M1900 1122V1200M1900 1145L1840 1185M1900 1145L1960 1185M1900 1200L1840 1260M1900 1200L1960 1260" fill="none" stroke="#477F7A" stroke-width="3" /><text x="1900" y="1310" font-size="30">User</text><ellipse cx="620.0" cy="665.0" rx="220.0" ry="75.0" fill="#F2F7F6" stroke="#477F7A" stroke-width="2" /><text x="620.0" y="674.86" font-size="29">Analyse UAV Video</text><ellipse cx="1365.0" cy="1232.5" rx="265.0" ry="52.5" fill="#F2F7F6" stroke="#477F7A" stroke-width="2" /><text x="1365.0" y="1242.36" font-size="29">View Results</text><ellipse cx="1365.0" cy="242.5" rx="265.0" ry="62.5" fill="#F2F7F6" stroke="#477F7A" stroke-width="2" /><text x="1365.0" y="252.02" font-size="28">Read Video Frames</text><ellipse cx="1365.0" cy="452.5" rx="265.0" ry="62.5" fill="#F2F7F6" stroke="#477F7A" stroke-width="2" /><text x="1365.0" y="462.02" font-size="28">Set Up AI Automatically</text><ellipse cx="1365.0" cy="662.5" rx="265.0" ry="62.5" fill="#F2F7F6" stroke="#477F7A" stroke-width="2" /><text x="1365.0" y="672.02" font-size="28">Detect Objects</text><ellipse cx="1365.0" cy="872.5" rx="265.0" ry="62.5" fill="#F2F7F6" stroke="#477F7A" stroke-width="2" /><text x="1365.0" y="882.02" font-size="28">Track Objects</text><ellipse cx="1365.0" cy="1082.5" rx="265.0" ry="62.5" fill="#F2F7F6" stroke="#477F7A" stroke-width="2" /><text x="1365.0" y="1092.02" font-size="28">Display and Save Results</text><polyline points="240,352 490,604" fill="none" stroke="#477F7A" stroke-width="2" /><polyline points="1840,1232 1630,1232" fill="none" stroke="#477F7A" stroke-width="2" /><polyline points="733.3456437495952,600.7200879406657 1263.2418218759135,300.20849698983426" fill="none" stroke="#477F7A" stroke-width="2" stroke-dasharray="9 7" marker-end="url(#open)" /><rect x="902" y="414.46429246524997" width="136" height="32" fill="white" /><text x="970" y="436.46429246524997" font-size="22">«include»</text><polyline points="788.7298883806197,616.8723472739844 1196.132711112904,500.6668441456482" fill="none" stroke="#477F7A" stroke-width="2" stroke-dasharray="9 7" marker-end="url(#open)" /><rect x="902" y="522.7695957098163" width="136" height="32" fill="white" /><text x="970" y="544.7695957098163" font-size="22">«include»</text><polyline points="839.9893425959003,664.261780729544 1100.0268194044718,663.3891717469648" fill="none" stroke="#477F7A" stroke-width="2" stroke-dasharray="9 7" marker-end="url(#open)" /><rect x="902" y="627.8254762382544" width="136" height="32" fill="white" /><text x="970" y="649.8254762382544" font-size="22">«include»</text><polyline points="790.3690555819105,712.4517839372436 1193.7511268515884,824.8031662036303" fill="none" stroke="#477F7A" stroke-width="2" stroke-dasharray="9 7" marker-end="url(#open)" /><rect x="902" y="732.627475070437" width="136" height="32" fill="white" /><text x="970" y="754.627475070437" font-size="22">«include»</text><polyline points="734.3380130222621,729.0753294453616 1262.2056083492348,1024.893746960813" fill="none" stroke="#477F7A" stroke-width="2" stroke-dasharray="9 7" marker-end="url(#open)" /><rect x="902" y="840.9845382030873" width="136" height="32" fill="white" /><text x="970" y="862.9845382030873" font-size="22">«include»</text><text x="1020.0" y="1307.82" font-size="23" fill="#203B38" font-weight="normal">Camera: supplies video. System: analyses video. User: views results.</text></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="3450" viewBox="0 0 1500 1725">
+<rect width="1500" height="1725" fill="white"/>
+<defs>
+  <marker id="include" viewBox="0 0 18 21" markerWidth="18" markerHeight="21" markerUnits="userSpaceOnUse" refX="16" refY="10.5" orient="auto"><path d="M2 2L16 10.5L2 19" fill="none" stroke="#32645c" stroke-width="3.5"/></marker>
+  <marker id="variant" viewBox="0 0 24 25" markerWidth="24" markerHeight="25" markerUnits="userSpaceOnUse" refX="22" refY="12.5" orient="auto"><path d="M2 2L22 12.5L2 23Z" fill="white" stroke="#52738f" stroke-width="3.3"/></marker>
+</defs>
+<g font-family="Arial, sans-serif" fill="#203b38" text-anchor="middle">
+<rect x="172" y="15" width="1047" height="1608" rx="10" fill="white" stroke="#32645c" stroke-width="4.5"/>
+<path d="M174 92H1217" stroke="#c9ddda" stroke-width="2"/>
+<text x="695.5" y="70" font-size="49" font-weight="700">UAV Video Monitoring System</text>
+
+<polyline points="145,464 158,464 181,159 434.0,159.0" fill="none" stroke="#52738f" stroke-width="5.2" stroke-linejoin="round"/>
+<polyline points="145,514 158,514 181,352 222.0,352.0" fill="none" stroke="#52738f" stroke-width="5.2" stroke-linejoin="round"/>
+<polyline points="145,565 158,565 181,555 223.5,555.0" fill="none" stroke="#52738f" stroke-width="5.2" stroke-linejoin="round"/>
+<polyline points="145,616 158,616 181,762 213.5,762.0" fill="none" stroke="#52738f" stroke-width="5.2" stroke-linejoin="round"/>
+<polyline points="934.0,159.0 1187,159 1252,690 1283,690" fill="none" stroke="#344f67" stroke-width="5.2" stroke-linejoin="round"/>
+<polyline points="1152.0,555.0 1187,555 1252,746 1283,746" fill="none" stroke="#344f67" stroke-width="5.2" stroke-linejoin="round"/>
+<polyline points="1129.5,1147.0 1187,1147 1252,804 1283,804" fill="none" stroke="#344f67" stroke-width="5.2" stroke-linejoin="round"/>
+<polyline points="1129.5,1338.0 1187,1338 1252,862 1283,862" fill="none" stroke="#344f67" stroke-width="5.2" stroke-linejoin="round"/>
+<polyline points="1129.5,1529.0 1187,1529 1252,919 1283,919" fill="none" stroke="#344f67" stroke-width="5.2" stroke-linejoin="round"/>
+<polyline points="489.55,299.56 610.6,212.05" fill="none" stroke="#52738f" stroke-width="3.8" stroke-linejoin="round" marker-end="url(#variant)"/>
+<polyline points="873.32,299.0 755.88,212.16" fill="none" stroke="#52738f" stroke-width="3.8" stroke-linejoin="round" marker-end="url(#variant)"/>
+<polyline points="417.0,501.0 417.0,408.5" fill="none" stroke="#32645c" stroke-width="3.8" stroke-linejoin="round" stroke-dasharray="12 8" marker-end="url(#include)"/>
+<polyline points="582.87,729.85 644,720 644,398 576.8,384.38" fill="none" stroke="#32645c" stroke-width="3.8" stroke-linejoin="round" stroke-dasharray="12 8" marker-end="url(#include)"/>
+<polyline points="612.0,352.0 720,352 720,674 829.46,716.81" fill="none" stroke="#32645c" stroke-width="3.8" stroke-linejoin="round" stroke-dasharray="12 8" marker-end="url(#include)"/>
+<polyline points="620.5,762.0 746.0,762.0" fill="none" stroke="#32645c" stroke-width="3.8" stroke-linejoin="round" stroke-dasharray="12 8" marker-end="url(#include)"/>
+<polyline points="945.0,501.0 945.0,408.5" fill="none" stroke="#32645c" stroke-width="3.8" stroke-linejoin="round" stroke-dasharray="12 8" marker-end="url(#include)"/>
+<polyline points="945.0,609.0 945.0,706.5" fill="none" stroke="#32645c" stroke-width="3.8" stroke-linejoin="round" stroke-dasharray="12 8" marker-end="url(#include)"/>
+<polyline points="945.0,817.5 945.0,902.0" fill="none" stroke="#32645c" stroke-width="3.8" stroke-linejoin="round" stroke-dasharray="12 8" marker-end="url(#include)"/>
+<polyline points="824.68,806.21 531.71,913.85" fill="none" stroke="#32645c" stroke-width="3.8" stroke-linejoin="round" stroke-dasharray="12 8" marker-end="url(#include)"/>
+<polyline points="851.27,810.96 721,878 721,1147 600.5,1147.0" fill="none" stroke="#32645c" stroke-width="3.8" stroke-linejoin="round" stroke-dasharray="12 8" marker-end="url(#include)"/>
+<polyline points="417.0,1201.0 417.0,1284.0" fill="none" stroke="#32645c" stroke-width="3.8" stroke-linejoin="round" stroke-dasharray="12 8" marker-end="url(#include)"/>
+<ellipse cx="684" cy="159" rx="250.0" ry="55.5" fill="#edf5fc" stroke="#52738f" stroke-width="3.5"/>
+<text x="684" y="156" font-size="35" font-weight="700">Run UAV Video Session</text>
+<text x="684" y="186" font-size="25">Select live or periodic recording</text>
+<ellipse cx="417" cy="352" rx="195.0" ry="56.5" fill="#edf5fc" stroke="#52738f" stroke-width="3.5"/>
+<text x="417" y="349" font-size="35" font-weight="700">Live Monitoring</text>
+<text x="417" y="379" font-size="25">Stream after takeoff</text>
+<ellipse cx="945" cy="352" rx="207.0" ry="56.5" fill="#edf5fc" stroke="#52738f" stroke-width="3.5"/>
+<text x="945" y="349" font-size="35" font-weight="700">Periodic Recording</text>
+<text x="945" y="379" font-size="25">Store timestamped clips</text>
+<ellipse cx="417" cy="555" rx="193.5" ry="54.0" fill="#edf5fc" stroke="#52738f" stroke-width="3.5"/>
+<text x="417" y="552" font-size="35" font-weight="700">Record on UAV</text>
+<text x="417" y="582" font-size="25">Store video during link loss</text>
+<ellipse cx="945" cy="555" rx="207.0" ry="54.0" fill="#f1f7f5" stroke="#32645c" stroke-width="3.5"/>
+<text x="945" y="552" font-size="35" font-weight="700">Analyse Saved Clips</text>
+<text x="945" y="582" font-size="25">Select a clip later</text>
+<ellipse cx="417" cy="762" rx="203.5" ry="55.5" fill="#edf5fc" stroke="#52738f" stroke-width="3.5"/>
+<text x="417" y="759" font-size="35" font-weight="700">Recover Missed Video</text>
+<text x="417" y="789" font-size="25">Transfer the saved segment</text>
+<ellipse cx="945" cy="762" rx="199.0" ry="55.5" fill="#f1f7f5" stroke="#32645c" stroke-width="3.5"/>
+<text x="945" y="759" font-size="35" font-weight="700">Analyse Video</text>
+<text x="945" y="789" font-size="25">Use the live feed or a clip</text>
+<ellipse cx="417" cy="956" rx="183.5" ry="54.0" fill="#f1f7f5" stroke="#32645c" stroke-width="3.5"/>
+<text x="417" y="953" font-size="35" font-weight="700">Detect Objects</text>
+<text x="417" y="983" font-size="25">Class, box, confidence</text>
+<ellipse cx="945" cy="956" rx="184.5" ry="54.0" fill="#f1f7f5" stroke="#32645c" stroke-width="3.5"/>
+<text x="945" y="953" font-size="35" font-weight="700">Automatic Setup</text>
+<text x="945" y="983" font-size="25">Model, size and rate</text>
+<ellipse cx="417" cy="1147" rx="183.5" ry="54.0" fill="#f1f7f5" stroke="#32645c" stroke-width="3.5"/>
+<text x="417" y="1144" font-size="35" font-weight="700">Track Objects</text>
+<text x="417" y="1174" font-size="25">Match across frames</text>
+<ellipse cx="945" cy="1147" rx="184.5" ry="54.0" fill="#f1f7f5" stroke="#32645c" stroke-width="3.5"/>
+<text x="945" y="1144" font-size="35" font-weight="700">View Results</text>
+<text x="945" y="1174" font-size="25">Video, IDs and link status</text>
+<ellipse cx="417" cy="1338" rx="183.5" ry="54.0" fill="#f1f7f5" stroke="#32645c" stroke-width="3.5"/>
+<text x="417" y="1335" font-size="35" font-weight="700">Assign Track IDs</text>
+<text x="417" y="1365" font-size="25">One ID per active track</text>
+<ellipse cx="945" cy="1338" rx="184.5" ry="54.0" fill="#f1f7f5" stroke="#32645c" stroke-width="3.5"/>
+<text x="945" y="1335" font-size="35" font-weight="700">Save Results</text>
+<text x="945" y="1365" font-size="25">Video, CSV and logs</text>
+<ellipse cx="945" cy="1529" rx="184.5" ry="54.0" fill="#f1f7f5" stroke="#32645c" stroke-width="3.5"/>
+<text x="945" y="1526" font-size="35" font-weight="700">Print Results</text>
+<text x="945" y="1556" font-size="25">Summary on request</text>
+<rect x="10" y="422" width="135" height="240" fill="#edf5fc" stroke="#52738f" stroke-width="2.7"/>
+<text x="77.5" y="523" font-size="25">«actor»</text>
+<text x="77.5" y="570" font-size="38" font-weight="700">UAV</text>
+<rect x="1283" y="648" width="207" height="314" fill="#f3f6fb" stroke="#344f67" stroke-width="3"/>
+<text x="1386.5" y="759" font-size="26">«actor»</text>
+<text x="1386.5" y="812" font-size="39" font-weight="700">Admin</text>
+<text x="1386.5" y="854" font-size="28">Operator</text>
+<rect x="339.5" y="425.5" width="155" height="57" fill="white"/>
+<text x="417" y="449.5" font-size="23">«extend»</text>
+<text x="417" y="474.5" font-size="23">[Link lost]</text>
+<rect x="560.5" y="620.5" width="155" height="57" fill="white"/>
+<text x="638" y="644.5" font-size="23">«extend»</text>
+<text x="638" y="669.5" font-size="23">[Link restored]</text>
+<rect x="666.0" y="456.5" width="118" height="29" fill="white"/>
+<text x="725" y="479.0" font-size="23">«include»</text>
+<rect x="622.0" y="722.5" width="118" height="29" fill="white"/>
+<text x="681" y="745.0" font-size="23">«include»</text>
+<rect x="867.5" y="423.5" width="155" height="57" fill="white"/>
+<text x="945" y="447.5" font-size="23">«extend»</text>
+<text x="945" y="472.5" font-size="23">[On request]</text>
+<rect x="886.0" y="643.5" width="118" height="29" fill="white"/>
+<text x="945" y="666.0" font-size="23">«include»</text>
+<rect x="886.0" y="843.5" width="118" height="29" fill="white"/>
+<text x="945" y="866.0" font-size="23">«include»</text>
+<rect x="598.0" y="850.5" width="118" height="29" fill="white"/>
+<text x="657" y="873.0" font-size="23">«include»</text>
+<rect x="649.0" y="1038.5" width="118" height="29" fill="white"/>
+<text x="708" y="1061.0" font-size="23">«include»</text>
+<rect x="358.0" y="1225.5" width="118" height="29" fill="white"/>
+<text x="417" y="1248.0" font-size="23">«include»</text>
+<text x="750" y="1654" font-size="25">Solid lines show actor participation. Hollow triangles mark the two capture modes.</text>
+<text x="750" y="1687" font-size="25">«include» marks a shared task. «extend» marks an action triggered by a condition.</text>
+</g></svg>
