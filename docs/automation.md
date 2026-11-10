@@ -19,17 +19,17 @@ results folder. It must not already exist.
 2. Measure brightness, contrast and a fixed-scale sharpness indicator.
 3. Find trusted local `yolov8*.pt` files beside the program and custom detection
    weights in `weights/academic/`. No weights or data are downloaded.
-4. Warm up and time the available 640/960/1280 input profiles. Ultralytics
-   performs aspect-preserving letterboxing; the original video is not stretched.
-5. Compare compatible class sets, prioritising coverage of airplane, helicopter,
-   drone and bird. Within the measured source-rate budget, apply a documented
-   size/model preference. These preferences are heuristics, not accuracy scores.
-6. Select an analysis stride from measured time. Update this stride after every
-   20 analysed frames. Slower analysis increases the stride promptly; two
-   consistently faster windows allow the stride to recover without oscillation.
-   The selected model
-   and input size remain fixed within a run; there is no frame-by-frame model
-   switching or learned controller.
+4. Warm up and time the 640 input profile and larger profiles when the source
+   has enough pixels or the exact model and size have a validation record.
+   Ultralytics preserves the source aspect ratio.
+5. Prioritise class coverage. If reviewed profiles are available, rank them
+   by detector mAP50 from the same labelled validation protocol. The scores in
+   `validation_profiles.json` apply only to the recorded weights fingerprint and
+   input size. Without a matching profile, the decision uses measured runtime
+   and the startup image-quality heuristic.
+6. Analyse every decoded frame in a recorded file. Only simulated live replay
+   uses the time budget to adjust the analysis stride. Model and input size are
+   chosen once for each run.
 7. Detect and track with ByteTrack, write a video and log the decisions.
 
 The annotated output keeps all decoded frames and the original playback rate.
@@ -73,7 +73,7 @@ training data.
 
 ## Limits of this experiment
 
-Measured timing depends on hardware, other running programs and thermal state.
+Measured timing depends on hardware, other running programs and thermal state. A validation score ranks the recorded model profiles and does not estimate accuracy on the current unlabelled clip.
 The timing budget includes a margin but does not guarantee a sustained rate.
 Initial frame-quality measurements cannot establish classification accuracy or
 recover details absent from the recording. No precision, recall or mAP is

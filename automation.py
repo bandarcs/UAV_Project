@@ -29,7 +29,7 @@ TARGET_ALIASES = {
     "bird": {"bird"},
 }
 POLICY = {
-    "version": "offline-resource-policy-v2",
+    "version": "validation-aware-policy-v3",
     "max_analysis_fps": 30,
     "confidence": 0.25,
     "sample_fractions": [0.1, 0.5, 0.9],
@@ -76,8 +76,8 @@ def class_mapping(names):
     return mapping
 
 
-def select_profile(profiles, source_fps, difficult):
-    """Select within measured time budget; confidence counts are not a score."""
+def select_profile(profiles, source_fps, difficult, *, recorded=False):
+    """Rank reviewed profiles; constrain a live replay to its measured budget."""
     good = [p for p in profiles if p.get("ok") and p["latency_ms"] > 0
             and math.isfinite(p["latency_ms"]) and p["supported_classes"]]
     if not good:
@@ -93,7 +93,11 @@ def select_profile(profiles, source_fps, difficult):
     budget_ms = 1000 / target_fps
     feasible = [p for p in comparable
                 if p["latency_ms"] * POLICY["timing_margin"] <= budget_ms]
-    if feasible:
+    validated = [p for p in (comparable if recorded else feasible) if "validation_map50" in p]
+    if validated:
+        selected = max(validated, key=lambda p: (p["validation_map50"], -p["latency_ms"]))
+        reason = "Selected by labelled validation mAP50 within the eligible class coverage and timing constraints."
+    elif feasible:
         # Size/model preferences are an engineering heuristic. Without reviewed
         # ground truth, a larger model or input size is not proof of accuracy.
         if difficult:
@@ -106,7 +110,32 @@ def select_profile(profiles, source_fps, difficult):
         reason = "No profile meets the timing budget; selected the fastest compatible profile."
     stride = max(1, math.ceil(source_fps / POLICY["max_analysis_fps"]),
                  math.ceil(source_fps * selected["latency_ms"] * POLICY["timing_margin"] / 1000))
-    return dict(selected), stride, reason
+    return dict(selected), 1 if recorded else stride, reason
+
+
+def validation_profiles(project_root):
+    """Read optional scores for exact weight fingerprints and input sizes."""
+    path = project_root / "docs" / "validation_profiles.json"
+    if not path.is_file():
+        return None, {}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError("Validation profiles must be a JSON object.")
+    protocol = data.get("protocol")
+    profiles_by_hash = data.get("map50_by_weights_sha256")
+    if not isinstance(protocol, str) or not protocol.strip() or not isinstance(profiles_by_hash, dict):
+        raise ValueError("Validation profiles require a named protocol and scores by fingerprint.")
+    scores = {}
+    for digest, profiles in profiles_by_hash.items():
+        if (len(digest) != 64 or any(char not in "0123456789abcdef" for char in digest)
+                or not isinstance(profiles, dict)):
+            raise ValueError("Invalid weights fingerprint in validation profiles.")
+        for size, score in profiles.items():
+            if (size not in {str(value) for value in POLICY["sizes"]}
+                    or type(score) not in (int, float) or not 0 <= score <= 1):
+                raise ValueError("Invalid size or mAP50 in validation profiles.")
+            scores[digest, int(size)] = score
+    return protocol, scores
 
 
 def checked_video(value):
@@ -132,7 +161,8 @@ def read_frames(capture):
         yield frame
 
 
-def run(video: Path, output: Path, project_root: Path, *, frame_source=read_frames, calibration_end=None):
+def run(video: Path, output: Path, project_root: Path, *, frame_source=read_frames,
+        calibration_end=None, rate_limited=False):
     import cv2
     import torch
     from ultralytics import YOLO
@@ -142,7 +172,8 @@ def run(video: Path, output: Path, project_root: Path, *, frame_source=read_fram
     status = {"status": "initialising", "source": str(video), "policy": POLICY,
               "code_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
               "purpose": "Offline academic recorded-video experiment",
-              "accuracy_evaluated": False}
+              "accuracy_evaluated": False,
+              "frame_policy": "adaptive_replay" if rate_limited else "all_recorded_frames"}
     status_path = output / "summary.json"
     write_json(status_path, status)
     cap = cv2.VideoCapture(str(video))
@@ -196,7 +227,7 @@ def run(video: Path, output: Path, project_root: Path, *, frame_source=read_fram
         paths += sorted((project_root / "weights" / "academic").glob("*.pt"))
         if not paths:
             raise ValueError("No local YOLOv8 or weights/academic/*.pt detection weights were found.")
-        sizes = [s for s in POLICY["sizes"] if s == 640 or max(width, height) >= s]
+        protocol, validation_scores = validation_profiles(project_root)
         profiles = []
         for path in paths:
             model = None
@@ -210,9 +241,19 @@ def run(video: Path, output: Path, project_root: Path, *, frame_source=read_fram
                     profiles.append({"weights": str(path), "ok": False, "error": "No requested classes in weights."})
                     continue
                 parameters = sum(p.numel() for p in model.model.parameters())
+                # Validation results apply to this exact weights file and input size.
+                digest = None
+                if validation_scores:
+                    with path.open("rb") as file:
+                        digest = hashlib.file_digest(file, "sha256").hexdigest()
+                sizes = [size for size in POLICY["sizes"]
+                         if size == 640 or max(width, height) >= size or (digest, size) in validation_scores]
                 for size in sizes:
                     trial = {"weights": str(path), "imgsz": size, "parameters": parameters,
                              "supported_classes": sorted(set(mapping.values()))}
+                    if (digest, size) in validation_scores and set(mapping.values()) == set(TARGET_ALIASES):
+                        trial.update(validation_map50=validation_scores[digest, size],
+                                     validation_protocol=protocol, weights_sha256=digest)
                     try:
                         kwargs = dict(imgsz=size, conf=POLICY["confidence"], classes=sorted(mapping), device=device, verbose=False)
                         model.predict(samples[0], **kwargs)  # Unmeasured warm-up.
@@ -236,7 +277,7 @@ def run(video: Path, output: Path, project_root: Path, *, frame_source=read_fram
                 del model
                 release()
         write_json(output / "calibration.json", profiles)
-        selected, stride, reason = select_profile(profiles, fps, difficult)
+        selected, stride, reason = select_profile(profiles, fps, difficult, recorded=not rate_limited)
         model = YOLO(selected["weights"])
         mapping = class_mapping(model.names)
         missing = sorted(set(TARGET_ALIASES) - set(mapping.values()))
@@ -267,7 +308,7 @@ def run(video: Path, output: Path, project_root: Path, *, frame_source=read_fram
             dw.writerow(["frame", "time_seconds", "class", "confidence", "track_id", "x1", "y1", "x2", "y2"])
             fw.writerow(["frame", "analysed", "stride", "detections", "analysis_ms"])
             sw.writerow(["effective_frame", "stride", "reason"])
-            sw.writerow([0, stride, "startup calibration"])
+            sw.writerow([0, stride, "startup calibration" if rate_limited else "all recorded frames"])
             frame_iterator = iter(frame_source(cap))
             for frame in frame_iterator:
                 if frame is None or not frame.size:
@@ -297,7 +338,8 @@ def run(video: Path, output: Path, project_root: Path, *, frame_source=read_fram
                             legend.append(f"ID {identity or '-'}  {mapping[cls]}  {confidence:.0%}")
                     sync()
                     analysis_ms = (time.perf_counter() - tick) * 1000
-                    window.append(analysis_ms)
+                    if rate_limited:
+                        window.append(analysis_ms)
                     counts["analysed_frames"] += 1
                     counts["detection_rows"] += count
                     del result

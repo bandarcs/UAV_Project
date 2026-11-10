@@ -1,0 +1,15 @@
+{
+  "protocol": "Halmstad RGB validation: 12 sequence-disjoint clips, 753 sampled frames, 769 boxes, four classes, IoU 0.50, fixed detector scoring",
+  "map50_by_weights_sha256": {
+    "f143534c7fe8246e94acf7064560c7eadf8f391c1faf8e3cd90286c6442ec9b9": {
+      "640": 0.04714235996431754
+    },
+    "d59fcd18afd4892dcf39d32c7879fbd32bf0aff00b6a153586536b5c2153eabe": {
+      "640": 0.06388751265688064
+    },
+    "fd03e7c04cf1c427803cce65301aa73d82527db4fcd130c6799456d67bf0fce8": {
+      "640": 0.4253893704082128,
+      "960": 0.2533635646954339
+    }
+  }
+}

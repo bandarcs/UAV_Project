@@ -11,8 +11,8 @@
 ## Automatic recorded-video experiment
 
 [`automation.py`](automation.py) receives one local video and automatically
-calibrates the available model, analysis size and analysis stride. No model or
-image-size selection is required from the user. After processing, it opens the annotated video in the default player. It writes its measurements,
+selects the model and input size and analyses every decoded frame. The video
+is the only required input. After processing, it opens the annotated video in the default player. It writes its measurements,
 selection reason, supported/missing classes, annotated video and CSV outputs.
 This is the main automatic offline entry point. Separate manual and SAHI
 baselines are retained for controlled comparisons.
@@ -24,12 +24,10 @@ baselines are retained for controlled comparisons.
 [Automation method and limits](docs/automation.md) ·
 [Four-class dataset reference](docs/dataset_sources.md) · [Verification](docs/automation_verification.md) · [Code map](docs/code_review.md)
 
-The selection policy measures runtime and uses documented heuristics. It does
-not establish best accuracy, train models, learn by itself or switch models
-within a running video. Standard local weights currently cover airplane and
-bird; drone and helicopter require compatible trained weights. Analysis-stride
-changes are logged, and skipped frames are marked rather than counted as
-negative detections.
+The selection policy checks supported classes, measures runtime, and uses
+labelled validation scores when they match the installed weights and image size.
+The scores describe those validation clips. Live replay uses a separate frame
+schedule. The selected model and size stay fixed for each run.
 
 </div>
 

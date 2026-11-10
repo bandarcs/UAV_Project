@@ -205,9 +205,10 @@ def execute(args):
             def frame_source(capture):
                 return replay_live(capture, info, outage, output, event)
 
-            summary = run(source, output / 'analysis', ROOT, frame_source=frame_source, calibration_end=outage[0])
+            summary = run(source, output / 'analysis', ROOT, frame_source=frame_source,
+                          calibration_end=outage[0], rate_limited=True)
         else:
-            summary = run(source, output / 'analysis', ROOT)
+            summary = run(source, output / 'analysis', ROOT, rate_limited=args.mode == 'live')
         manifest['status'] = summary['status'] if summary else 'completed'
     except (Exception, KeyboardInterrupt) as error:
         manifest['status'] = 'interrupted' if isinstance(error, KeyboardInterrupt) else 'failed'

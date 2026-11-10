@@ -64,6 +64,20 @@ class AutomationPolicyTests(unittest.TestCase):
         _, stride, _ = select_profile([profile(ms=1)], 120, False)
         self.assertEqual(stride, 4)
 
+    def test_recorded_video_processes_every_frame_and_can_choose_a_slower_validated_profile(self):
+        fast = dict(profile("fast.pt"), validation_map50=0.2)
+        accurate = dict(profile("accurate.pt", ms=100), validation_map50=0.6)
+        recorded, stride, _ = select_profile([fast, accurate], 60, False, recorded=True)
+        live, _, _ = select_profile([fast, accurate], 60, False)
+        self.assertEqual((recorded["weights"], stride), ("accurate.pt", 1))
+        self.assertEqual(live["weights"], "fast.pt")
+
+    def test_validated_profile_beats_unmeasured_model_size(self):
+        large = profile("large.pt", size=1280, parameters=50)
+        measured = dict(profile("measured.pt"), validation_map50=0.4)
+        picked, _, _ = select_profile([large, measured], 30, False)
+        self.assertEqual(picked["weights"], "measured.pt")
+
     def test_scheduler_recovers_from_stride_two_to_one(self):
         controller = RateController(30, 2)
         self.assertIsNone(controller.update(10))
