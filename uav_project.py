@@ -57,13 +57,16 @@ POLICY = {
 
 
 def menu_arguments():
-    print('\nUAV Project\n1. Replay a video and simulate signal loss\n2. Split a video into shorter clips\n3. Analyse a saved video')
-    choice = input('Choose 1, 2 or 3: ').strip()  # يختار المستخدم المهمة والفيديو
+    print('\nUAV Project\n1. Simulate signal loss\n2. Split a video\n3. Analyse a video automatically')
+    choice = input('Choose 1, 2 or 3: ').strip()  # يختار المستخدم نوع التجربة
     options = {'1': 'live', '2': 'periodic', '3': 'analyse'}
     if choice not in options:
         raise ValueError('Choose 1, 2 or 3.')
     video = input('Enter a video path or press Enter for the Halmstad sample: ').strip().strip('"')
-    return [options[choice], *([video] if video else [])]
+    arguments = [options[choice]]
+    if video:
+        arguments.append(video)  # إذا ترك المستخدم المسار فارغًا، يشغّل البرنامج العينة
+    return arguments
 
 
 def main(argv=None):
@@ -199,55 +202,61 @@ def run(video: Path, output: Path, project_root: Path, *, frame_source=read_fram
               "frame_policy": "adaptive_replay" if rate_limited else "all_recorded_frames"}
     status_path = output / "summary.json"
     write_json(status_path, status)
-    cap, writer, frame_iterator = None, None, None
+    capture = writer = frame_iterator = None
     counts = {"decoded_frames": 0, "analysed_frames": 0, "skipped_frames": 0,
               "written_frames": 0, "detection_rows": 0}
     try:
-        cap = cv2.VideoCapture(str(video))
-        if not cap.isOpened():
-            raise ValueError("OpenCV could not open the recorded video.")
-        info = VideoInfo.from_capture(cap)  # نقرأ أبعاد الفيديو وعدد الإطارات ومعدلها
-        width, height, fps, total = info.width, info.height, info.fps, info.frames
-        if min(width, height) < 2:
-            raise ValueError("Video width and height must each be at least two pixels.")
-        samples, positions, quality = sample_video(cap, total, calibration_end)  # نفحص جودة بعض الإطارات
+        with video_capture(video) as sample_capture:
+            info = VideoInfo.from_capture(sample_capture)  # نقرأ عدد الصور في الفيديو ودقته وسرعة عرضه
+            width, height, fps, total = info.width, info.height, info.fps, info.frames
+            if min(width, height) < 2:
+                raise ValueError("Video width and height must each be at least two pixels.")
+            samples, positions, quality = sample_video(
+                sample_capture, total, calibration_end
+            )  # نفحص الإضاءة والوضوح في عيّنات من الفيديو
         status.update(calibration_sample_frames=positions, image_quality=quality,
                       source_properties={"width": width, "height": height, "fps": fps,
                                          "reported_frames": total})
 
-        device = 0 if torch.cuda.is_available() else "cpu"  # نستخدم كرت الشاشة إذا كان متاحًا
+        device = 0 if torch.cuda.is_available() else "cpu"  # القرار يعتمد على الجهاز الذي يشغّل البرنامج
         status["device"] = str(device)
         long_edge = max(width, height)
-        profiles = calibrate_models(project_root, output, samples, long_edge, device)  # نقيس وقت كل إعداد
+        profiles = calibrate_models(
+            project_root, output, samples, long_edge, device
+        )  # نجرب النماذج والأحجام المتاحة على العيّنات ونقيس سرعتها
         difficult = quality["low_visibility_heuristic"]
-        selected, stride, reason = select_profile(
+        model_settings, frame_step, reason = select_profile(
             profiles, fps, difficult, recorded=not rate_limited
-        )  # نختار النموذج وحجم الصورة والإطارات تلقائيًا
-        model = YOLO(selected["weights"])  # نحمّل النموذج المختار للتشغيل
+        )  # نختار النموذج وحجم الصورة وعدد الإطارات بين تحليلين
+        model = YOLO(model_settings["weights"])  # نحمّل النموذج المختار مرة واحدة
         mapping = class_mapping(model.names)
         missing = sorted(set(TARGET_ALIASES) - set(mapping.values()))
-        status.update(selection=selected, selection_reason=reason, supported_classes=sorted(set(mapping.values())),
-                      unsupported_classes=missing, initial_stride=stride,
+        status.update(selection=model_settings, selection_reason=reason, supported_classes=sorted(set(mapping.values())),
+                      unsupported_classes=missing, initial_stride=frame_step,
                       class_coverage_complete=not missing,
                       calibration_seconds=time.perf_counter() - started,
                       note="No accuracy or superiority claim. Unsupported classes cannot be recognised with these weights.")
         write_json(output / "decision.json", status)  # نحفظ الإعدادات وسبب اختيارها
-        print(f"Selected {Path(selected['weights']).name}, size {selected['imgsz']}, stride {stride}", flush=True)
+        print(f"Selected {Path(model_settings['weights']).name}, size {model_settings['imgsz']}, stride {frame_step}", flush=True)
         class_warning = ""
         if missing:
             print("Weights do not support: " + ", ".join(missing), flush=True)
             class_warning = "Limited classes: " + ", ".join(status["supported_classes"])
-        cap.release()
-        cap = cv2.VideoCapture(str(video))  # نرجع لأول إطار بعد قراءة العينات
-        if not cap.isOpened():
+        capture = cv2.VideoCapture(str(video))  # نفتح الفيديو من بدايته بعد انتهاء فحص العيّنات
+        if not capture.isOpened():
             raise ValueError("Could not reopen source after calibration.")
         scale = min(1.0, POLICY["output_long_edge"] / max(width, height))
         output_size = tuple(max(2, int(dim * scale) // 2 * 2) for dim in (width, height))
         writer = cv2.VideoWriter(str(output / "annotated.mp4"), cv2.VideoWriter_fourcc(*"mp4v"), fps, output_size)
         if not writer.isOpened():
             raise ValueError("Could not create output video.")
-        window, pending_stride = [], None
-        rate = RateController(fps, stride)
+        recent_times = []
+        frame_schedule = RateController(fps, frame_step)
+        settings = {
+            "persist": True, "tracker": "bytetrack.yaml",  # يحافظ التتبع على رقم الجسم بين الصور
+            "imgsz": model_settings["imgsz"], "conf": POLICY["confidence"],
+            "classes": sorted(mapping), "device": device, "verbose": False,
+        }
         processing_started = time.perf_counter()
         with (
             (output / "detections.csv").open("w", newline="", encoding="utf-8") as detections,
@@ -260,48 +269,42 @@ def run(video: Path, output: Path, project_root: Path, *, frame_source=read_fram
             detection_table.writerow(["frame", "time_seconds", "class", "confidence", "track_id", "x1", "y1", "x2", "y2"])
             frame_table.writerow(["frame", "analysed", "stride", "detections", "analysis_ms"])
             schedule_table.writerow(["effective_frame", "stride", "reason"])
-            schedule_table.writerow([0, stride, "startup calibration" if rate_limited else "all recorded frames"])
-            frame_iterator = iter(frame_source(cap))  # نقرأ الفيديو المسجّل أو المحاكاة بالترتيب
-            for frame in frame_iterator:
+            schedule_table.writerow([0, frame_step, "startup calibration" if rate_limited else "all recorded frames"])
+            frame_iterator = iter(frame_source(capture))  # نرسل صور الفيديو إلى التحليل بالترتيب
+            for index, frame in enumerate(frame_iterator):
                 if frame is None or not frame.size:
                     raise ValueError("An empty decoded frame was encountered.")
-                index = counts["decoded_frames"]
                 counts["decoded_frames"] += 1
-                analysed = index % stride == 0  # إذا كانت الخطوة واحدًا نحلل كل إطار
+                step = frame_schedule.stride
+                analysed = index % step == 0  # في الفيديو المسجّل الخطوة 1، يعني نحلل كل صورة
                 count, analysis_ms = 0, None
                 legend = []
                 if analysed:
                     sync_device(device)
                     tick = time.perf_counter()
-                    result = model.track(
-                        frame,
-                        persist=True, tracker="bytetrack.yaml",  # نبقي رقم التتبّع بين الإطارات
-                        imgsz=selected["imgsz"], conf=POLICY["confidence"],
-                        classes=sorted(mapping), device=device, verbose=False,
-                    )[0]
+                    result = model.track(frame, **settings)[0]  # نكشف الأجسام ونتتبّعها في هذه الصورة
                     legend = write_detections(result, mapping, detection_table, index, fps)
                     count = len(legend)
                     display = result.plot(labels=False, line_width=2)  # نرسم المربعات ونضع الأسماء في قائمة جانبية
                     sync_device(device)
                     analysis_ms = (time.perf_counter() - tick) * 1000
                     if rate_limited:
-                        window.append(analysis_ms)
+                        recent_times.append(analysis_ms)
                     counts["analysed_frames"] += 1
                     counts["detection_rows"] += count
                     del result
-                    if len(window) == POLICY["schedule_window"]:
-                        pending_stride = rate.update(statistics.median(window))  # نضبط تكرار التحليل أثناء المحاكاة
-                        window.clear()
                 else:
-                    display = frame.copy()  # نحفظ الإطار المتجاوز بدون مربعات من الإطار السابق
+                    display = frame  # نخلي الصورة تظهر في الفيديو حتى لو تجاوزها التحليل في المحاكاة
                     counts["skipped_frames"] += 1
                 writer.write(annotate_frame(display, output_size, legend, analysed, class_warning))  # نحفظ كل إطار
                 counts["written_frames"] += 1
-                frame_table.writerow([index, int(analysed), stride, count if analysed else "",
+                frame_table.writerow([index, int(analysed), step, count if analysed else "",
                                       analysis_ms if analysed else ""])
-                if pending_stride is not None:
-                    stride, pending_stride = pending_stride, None
-                    schedule_table.writerow([index + 1, stride, "rolling measured analysis latency"])
+                if len(recent_times) == POLICY["schedule_window"]:
+                    new_step = frame_schedule.update(statistics.median(recent_times))
+                    recent_times.clear()
+                    if new_step is not None:
+                        schedule_table.writerow([index + 1, new_step, "rolling measured analysis latency"])
                 if counts["decoded_frames"] % 100 == 0:
                     print(f"Decoded {counts['decoded_frames']}/{total} frames", flush=True)
         if counts["written_frames"] == 0:
@@ -311,7 +314,7 @@ def run(video: Path, output: Path, project_root: Path, *, frame_source=read_fram
                       end_to_end_processing_fps=counts["decoded_frames"] / elapsed,
                       analysed_frames_per_second=counts["analysed_frames"] / elapsed,
                       decode_ended_before_reported_count=counts["decoded_frames"] < total,
-                      output_video_size=list(output_size), final_stride=stride,
+                      output_video_size=list(output_size), final_stride=frame_schedule.stride,
                       total_seconds=time.perf_counter() - started)
         write_json(status_path, status)  # نسجّل عدد الإطارات والوقت بعد انتهاء التشغيل
         return status
@@ -323,8 +326,8 @@ def run(video: Path, output: Path, project_root: Path, *, frame_source=read_fram
         close_frames = getattr(frame_iterator, "close", None)
         if close_frames is not None:
             close_frames()
-        if cap is not None:
-            cap.release()
+        if capture is not None:
+            capture.release()
         if writer is not None:
             writer.release()
 
