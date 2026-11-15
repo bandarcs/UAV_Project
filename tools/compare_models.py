@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import math
 import sys
 import time
@@ -114,6 +115,15 @@ def append_csv(path: Path, row: dict[str, Any]) -> None:
         writer.writerow(row)
 
 
+def save_training_record(path: Path, record: dict[str, Any]) -> None:
+    temporary = path.with_suffix(".tmp")
+    try:
+        temporary.write_text(json.dumps(record, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        temporary.replace(path)  # يُستبدل السجل بعد اكتمال كتابته حتى يبقى الملف قابلًا للقراءة.
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
 def main() -> int:
     args = parse_args()
     if args.epochs < 1:
@@ -204,6 +214,21 @@ def main() -> int:
                     )
                 best_path = last_path
 
+            epochs_completed = max(0, int(getattr(trainer, "epoch", -1)) + 1)
+            record_path = Path(trainer.save_dir) / "training_run.json"
+            record = {
+                "stage": "trained",
+                "dataset_yaml": str(Path(args.data).resolve()),
+                "starting_model": model_name,
+                "checkpoint": str(best_path.resolve()),
+                "epochs_completed": epochs_completed,
+                "input_size": args.imgsz,
+                "seed": args.seed,
+                "evaluation_split": args.split,
+                "results_csv": str(output_path.resolve()),
+            }
+            save_training_record(record_path, record)  # يربط النموذج المحفوظ ببياناته حتى لو تعثّر التقييم.
+
             print(f"=== {model_name}: evaluating on {args.split} split ===")
             trained_model = YOLO(str(best_path))
             metrics = trained_model.val(
@@ -215,12 +240,13 @@ def main() -> int:
                 conf=args.conf,
                 plots=False,
                 verbose=False,
+                project=str(trainer.save_dir),  # تبقى نتائج التقييم بجانب ملفات تدريب النموذج لتسهيل مراجعتها.
+                name=f"evaluation_{args.split}",
             )
 
             inference_ms = float(metrics.speed.get("inference", math.nan))
             fps_inference = 1000.0 / inference_ms if inference_ms > 0 else math.nan
             params_m = sum(parameter.numel() for parameter in trained_model.model.parameters()) / 1_000_000
-            epochs_completed = max(0, int(getattr(trainer, "epoch", -1)) + 1)
 
             row: dict[str, Any] = {
                 "model": model_name,
@@ -236,6 +262,8 @@ def main() -> int:
                 "train_fraction": args.fraction,
             }
             append_csv(output_path, row)
+            record["stage"] = "evaluated"
+            save_training_record(record_path, record)  # يوضح السجل أن قياس الأداء حُفظ في الجدول.
             rows.append(row)
 
             print(

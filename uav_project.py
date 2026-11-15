@@ -24,7 +24,7 @@ import cv2
 
 
 ROOT = Path(__file__).resolve().parent
-DEMO = ROOT / 'datasets' / 'Halmstad' / 'reference_samples' / 'V_AIRPLANE_001.mp4'  # عينة فيديو اختيارية
+DEMO = ROOT / 'datasets' / 'Halmstad' / 'reference_samples' / 'V_AIRPLANE_001.mp4'  # تعطي هذه العينة الفريق مقطعًا جاهزًا للتجربة عند ترك مسار الفيديو فارغًا.
 DATASET_COMMIT = '442d0c6750708cc221636f7a1fd31cbd8cb0aeb8'
 DATASET = 'https://github.com/DroneDetectionThesis/Drone-detection-dataset'
 CLIP_SOURCE = f'{DATASET}/blob/{DATASET_COMMIT}/Data/Video_V'
@@ -38,7 +38,7 @@ REFERENCE_CLIPS = {
 }
 
 
-TARGET_ALIASES = {  # نوحّد أسماء الفئات إلى أربع فئات
+TARGET_ALIASES = {  # تربط هذه القائمة أسماء النماذج المختلفة باسم موحّد. مثال ذلك تخزين aeroplane باسم airplane في النتائج.
     "airplane": {"airplane", "aeroplane", "aircraft", "plane"},
     "helicopter": {"helicopter", "chopper"},
     "drone": {"drone", "uav", "quadcopter", "quadrotor"},
@@ -48,7 +48,7 @@ POLICY = {
     "version": "validation-aware-policy-v3",
     "max_analysis_fps": 30,
     "confidence": 0.25,
-    "sample_fractions": [0.1, 0.5, 0.9],  # نأخذ عينات من بداية الفيديو ووسطه ونهايته
+    "sample_fractions": [0.1, 0.5, 0.9],  # توزيع العيّنات على أجزاء مختلفة يساعد على تقدير وضوح المقطع حتى لو تغيرت الإضاءة أثناء التصوير.
     "sizes": [640, 960, 1280],
     "timing_margin": 1.25,
     "schedule_window": 20,
@@ -58,18 +58,18 @@ POLICY = {
 
 def menu_arguments():
     print('\nUAV Project\n1. Simulate signal loss\n2. Split a video\n3. Analyse a video automatically')
-    choice = input('Choose 1, 2 or 3: ').strip()  # يختار المستخدم نوع التجربة
+    choice = input('Choose 1, 2 or 3: ').strip()  # يحدد هذا الرقم المهمة المطلوبة. الخيار 3 هو كشف الأجسام وتتبعها في فيديو محفوظ.
     options = {'1': 'live', '2': 'periodic', '3': 'analyse'}
     if choice not in options:
         raise ValueError('Choose 1, 2 or 3.')
     video = input('Enter a video path or press Enter for the Halmstad sample: ').strip().strip('"')
     arguments = [options[choice]]
     if video:
-        arguments.append(video)  # إذا ترك المستخدم المسار فارغًا، يشغّل البرنامج العينة
+        arguments.append(video)  # يصل المسار الذي يكتبه المستخدم إلى نفس المحلل الذي يستقبل ملفات الفيديو من سطر الأوامر.
     return arguments
 
 
-def main(argv=None):
+def main(argv=None):  # نقطة البداية التي تقرر استخدام القائمة أو قراءة خيارات التشغيل من سطر الأوامر.
     args_list = list(sys.argv[1:] if argv is None else argv)
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('mode_or_video', metavar='MODE_OR_VIDEO', nargs='?',
@@ -92,15 +92,15 @@ def main(argv=None):
         args.mode = args.mode_or_video
         if args.video is None and not DEMO.is_file():
             raise ValueError(f'Download the sample to {DEMO}, or provide another video.\n{DEMO_URL}')
-        execute(args)  # القائمة والأوامر تشغّل نفس خطوات البرنامج
+        execute(args)  # بعد قراءة الخيارات، تمر مهمة القائمة ومهمة سطر الأوامر على نفس طريقة تشغيل الجلسة وحفظها.
     except (cv2.error, EOFError, OSError, RuntimeError, ValueError) as error:
         parser.exit(2, f'\n{error}\n')
     except KeyboardInterrupt:
         parser.exit(130, '\nSession stopped.\n')
 
 
-def execute(args):
-    source = checked_video(args.video or DEMO)  # نتأكد أن الفيديو المحلي قابل للفتح
+def execute(args):  # يدير جلسة واحدة من اختيار الفيديو حتى حفظ السجل والمخرجات.
+    source = checked_video(args.video or DEMO)  # يفحص المسار والامتداد مبكرًا حتى تظهر رسالة مفهومة قبل بدء تجربة النماذج.
     info = VideoInfo.inspect(source)
     outage = outage_frames(info, args.outage) if args.mode == 'live' else None
     if args.mode == 'periodic' and (not math.isfinite(args.clip_seconds) or args.clip_seconds <= 0):
@@ -115,7 +115,7 @@ def execute(args):
     def save_manifest():
         temporary = output / 'session.partial.json'
         write_json(temporary, manifest)
-        temporary.replace(output / 'session.json')  # نحفظ السجل بعد ما يكتمل
+        temporary.replace(output / 'session.json')  # استبدال السجل بعد اكتمال كتابة النسخة المؤقتة يقلل احتمال ترك ملف JSON ناقص عند التوقف.
 
     def event(name, frame, **details):
         manifest['events'].append({'event': name, 'source_frame': frame, 'source_seconds': info.seconds(frame), **details})
@@ -125,10 +125,10 @@ def execute(args):
     save_manifest()
     summary = None
     try:
-        if args.mode == 'periodic':  # نقسّم الفيديو إلى مقاطع للتحليل لاحقًا
+        if args.mode == 'periodic':  # هذا الخيار يحفظ أجزاء قصيرة من الفيديو لتجربتها لاحقًا كل مقطع على حدة.
             record_periodic(source, output, info, args.clip_seconds, event)
         elif outage is not None:
-            def frame_source(capture):  # نسترجع مقطع الانقطاع في ترتيبه داخل الفيديو
+            def frame_source(capture):  # مصدر الإطارات هنا هو سيناريو المحاكاة. يعيد الجزء المحفوظ في موضعه قبل متابعة بقية الفيديو.
                 return replay_live(capture, info, outage, output, event)
 
             summary = run(
@@ -163,10 +163,10 @@ def execute(args):
 
 
 def analyse_direct(video_path, output_dir, no_open):
-    video = checked_video(video_path)  # مسار الفيديو يكفي لبدء التحليل
+    video = checked_video(video_path)  # تمرير مسار وحده يتيح بدء التحليل مباشرة من نافذة الأوامر.
     output = output_dir or ROOT / 'runs' / 'automation' / f'{video.stem}_{datetime.now():%Y%m%d_%H%M%S_%f}'
     result = run(video, output, ROOT)
-    print(json.dumps({  # نطبع ملخصًا يقدر برنامج آخر يقرأه
+    print(json.dumps({  # الملخص يسهّل على الفريق قراءة النموذج المختار ومسار النتائج أو التقاطهما من برنامج آخر.
         'status': result['status'],
         'weights': result['selection']['weights'],
         'imgsz': result['selection']['imgsz'],
@@ -185,7 +185,7 @@ def read_frames(capture):
         ok, frame = capture.read()
         if not ok:
             return
-        yield frame  # نقرأ صورة واحدة في كل مرة
+        yield frame  # نسلّم كل صورة فور قراءتها حتى تبقى ذاكرة الجهاز متاحة حتى مع المقاطع الطويلة.
 
 
 def run(video: Path, output: Path, project_root: Path, *, frame_source=read_frames,
@@ -207,28 +207,28 @@ def run(video: Path, output: Path, project_root: Path, *, frame_source=read_fram
               "written_frames": 0, "detection_rows": 0}
     try:
         with video_capture(video) as sample_capture:
-            info = VideoInfo.from_capture(sample_capture)  # نقرأ عدد الصور في الفيديو ودقته وسرعة عرضه
+            info = VideoInfo.from_capture(sample_capture)  # تُستخدم خصائص المصدر لتحديد الفاصل الزمني للإطارات ولتشغيل الناتج بسرعة الفيديو الأصلية.
             width, height, fps, total = info.width, info.height, info.fps, info.frames
             if min(width, height) < 2:
                 raise ValueError("Video width and height must each be at least two pixels.")
             samples, positions, quality = sample_video(
                 sample_capture, total, calibration_end
-            )  # نفحص الإضاءة والوضوح في عيّنات من الفيديو
+            )  # تقيّم العيّنات الإضاءة والتباين والوضوح قبل اختيار إعدادات التحليل للمقطع.
         status.update(calibration_sample_frames=positions, image_quality=quality,
                       source_properties={"width": width, "height": height, "fps": fps,
                                          "reported_frames": total})
 
-        device = 0 if torch.cuda.is_available() else "cpu"  # القرار يعتمد على الجهاز الذي يشغّل البرنامج
-        status["device"] = str(device)
+        device = 0 if torch.cuda.is_available() else "cpu"  # يستخدم كرت الشاشة على جهاز التشغيل عند توفر CUDA، وإلا ينفذ التحليل على المعالج.
+        status["device"] = str(device)  # يساعد سجل الجهاز على فهم سبب اختلاف السرعة بين جهاز الفريق والسيرفر.
         long_edge = max(width, height)
         profiles = calibrate_models(
             project_root, output, samples, long_edge, device
-        )  # نجرب النماذج والأحجام المتاحة على العيّنات ونقيس سرعتها
+        )  # نقارن زمن معالجة نفس العيّنات لكل نموذج وحجم مرشح حتى يكون قراره مبنيًا على سرعة الجهاز الحالي.
         difficult = quality["low_visibility_heuristic"]
         model_settings, frame_step, reason = select_profile(
             profiles, fps, difficult, recorded=not rate_limited
-        )  # نختار النموذج وحجم الصورة وعدد الإطارات بين تحليلين
-        model = YOLO(model_settings["weights"])  # نحمّل النموذج المختار مرة واحدة
+        )  # يحدد البرنامج ملف النموذج وحجم الصورة، ويختار في المحاكاة كم صورة يمر بينها قبل التحليل التالي.
+        model = YOLO(model_settings["weights"])  # يُحمَّل الملف الذي نجح في الاختيار ليستخدمه المتتبّع في بقية الجلسة.
         mapping = class_mapping(model.names)
         missing = sorted(set(TARGET_ALIASES) - set(mapping.values()))
         status.update(selection=model_settings, selection_reason=reason, supported_classes=sorted(set(mapping.values())),
@@ -236,13 +236,13 @@ def run(video: Path, output: Path, project_root: Path, *, frame_source=read_fram
                       class_coverage_complete=not missing,
                       calibration_seconds=time.perf_counter() - started,
                       note="No accuracy or superiority claim. Unsupported classes cannot be recognised with these weights.")
-        write_json(output / "decision.json", status)  # نحفظ الإعدادات وسبب اختيارها
+        write_json(output / "decision.json", status)  # سجل القرار يخلّي الفريق يعرف أي إعداد فاز ولماذا، ويبين أسماء الفئات التي يدعمها النموذج.
         print(f"Selected {Path(model_settings['weights']).name}, size {model_settings['imgsz']}, stride {frame_step}", flush=True)
         class_warning = ""
         if missing:
             print("Weights do not support: " + ", ".join(missing), flush=True)
             class_warning = "Limited classes: " + ", ".join(status["supported_classes"])
-        capture = cv2.VideoCapture(str(video))  # نفتح الفيديو من بدايته بعد انتهاء فحص العيّنات
+        capture = cv2.VideoCapture(str(video))  # فحص العيّنات يتنقل بين مواقع مختلفة، لذلك نبدأ قراءة جديدة حتى تدخل أول صورة في فيديو النتائج.
         if not capture.isOpened():
             raise ValueError("Could not reopen source after calibration.")
         scale = min(1.0, POLICY["output_long_edge"] / max(width, height))
@@ -253,7 +253,7 @@ def run(video: Path, output: Path, project_root: Path, *, frame_source=read_fram
         recent_times = []
         frame_schedule = RateController(fps, frame_step)
         settings = {
-            "persist": True, "tracker": "bytetrack.yaml",  # يحافظ التتبع على رقم الجسم بين الصور
+            "persist": True, "tracker": "bytetrack.yaml",  # يحتفظ ByteTrack بحالة التتبّع بين الصور حتى يحاول إعطاء الجسم نفسه الرقم نفسه عبر اللقطات.
             "imgsz": model_settings["imgsz"], "conf": POLICY["confidence"],
             "classes": sorted(mapping), "device": device, "verbose": False,
         }
@@ -270,22 +270,22 @@ def run(video: Path, output: Path, project_root: Path, *, frame_source=read_fram
             frame_table.writerow(["frame", "analysed", "stride", "detections", "analysis_ms"])
             schedule_table.writerow(["effective_frame", "stride", "reason"])
             schedule_table.writerow([0, frame_step, "startup calibration" if rate_limited else "all recorded frames"])
-            frame_iterator = iter(frame_source(capture))  # نرسل صور الفيديو إلى التحليل بالترتيب
+            frame_iterator = iter(frame_source(capture))  # مصدر الإطارات هو الملف المسجّل في التحليل العادي، أو تسلسل الإطارات المسترجعة في المحاكاة.
             for index, frame in enumerate(frame_iterator):
                 if frame is None or not frame.size:
                     raise ValueError("An empty decoded frame was encountered.")
                 counts["decoded_frames"] += 1
                 step = frame_schedule.stride
-                analysed = index % step == 0  # في الفيديو المسجّل الخطوة 1، يعني نحلل كل صورة
+                analysed = index % step == 0  # القيمة 1 تعني تحليل كل صورة. مثال المحاكاة مع القيمة 2 هو تحليل صورة من كل صورتين.
                 count, analysis_ms = 0, None
                 legend = []
                 if analysed:
                     sync_device(device)
                     tick = time.perf_counter()
-                    result = model.track(frame, **settings)[0]  # نكشف الأجسام ونتتبّعها في هذه الصورة
+                    result = model.track(frame, **settings)[0]  # يحدد النموذج مواقع الأجسام في الصورة الحالية ثم يربطها ByteTrack بالأرقام التي يتتبعها عبر الفيديو.
                     legend = write_detections(result, mapping, detection_table, index, fps)
                     count = len(legend)
-                    display = result.plot(labels=False, line_width=2)  # نرسم المربعات ونضع الأسماء في قائمة جانبية
+                    display = result.plot(labels=False, line_width=2)  # ترسم هذه الخطوة حدود كل جسم، وتحفظ مساحة الصورة بوضع الأسماء والأرقام في قائمة جانبية.
                     sync_device(device)
                     analysis_ms = (time.perf_counter() - tick) * 1000
                     if rate_limited:
@@ -294,9 +294,9 @@ def run(video: Path, output: Path, project_root: Path, *, frame_source=read_fram
                     counts["detection_rows"] += count
                     del result
                 else:
-                    display = frame  # نخلي الصورة تظهر في الفيديو حتى لو تجاوزها التحليل في المحاكاة
+                    display = frame  # الإطار المتجاوز يبقى في مكانه في الناتج ليحافظ الفيديو على مدته الأصلية.
                     counts["skipped_frames"] += 1
-                writer.write(annotate_frame(display, output_size, legend, analysed, class_warning))  # نحفظ كل إطار
+                writer.write(annotate_frame(display, output_size, legend, analysed, class_warning))  # تُضاف الصورة إلى الفيديو الناتج، ويظهر تنبيه على الصور التي تجاوزتها المعالجة في المحاكاة.
                 counts["written_frames"] += 1
                 frame_table.writerow([index, int(analysed), step, count if analysed else "",
                                       analysis_ms if analysed else ""])
@@ -316,7 +316,7 @@ def run(video: Path, output: Path, project_root: Path, *, frame_source=read_fram
                       decode_ended_before_reported_count=counts["decoded_frames"] < total,
                       output_video_size=list(output_size), final_stride=frame_schedule.stride,
                       total_seconds=time.perf_counter() - started)
-        write_json(status_path, status)  # نسجّل عدد الإطارات والوقت بعد انتهاء التشغيل
+        write_json(status_path, status)  # الملخص يجمع عدد الصور المقروءة والمحللة وزمن التنفيذ ليتحقق الفريق من اكتمال التجربة.
         return status
     except BaseException as exc:
         status.update(status="interrupted" if isinstance(exc, KeyboardInterrupt) else "failed", error=f"{type(exc).__name__}: {exc}", **counts)
@@ -340,7 +340,7 @@ def video_capture(path: Path):
             raise ValueError(f'Could not open video: {path}')
         yield capture
     finally:
-        capture.release()  # نغلق الملف حتى لو فشلت القراءة
+        capture.release()  # تحرير قارئ الفيديو يمنع بقاء الملف محجوزًا، ويحدث أيضًا عند انتهاء القراءة بخطأ.
 
 
 @dataclass(frozen=True)
@@ -357,7 +357,7 @@ class VideoInfo:
 
     @classmethod
     def from_capture(cls, capture):
-        fps = capture.get(cv2.CAP_PROP_FPS)  # عدد الإطارات في الثانية في الفيديو الأصلي
+        fps = capture.get(cv2.CAP_PROP_FPS)  # معدل الصور في الثانية يحوّل رقم كل إطار إلى وقت يمكن العثور عليه داخل المقطع.
         frames = capture.get(cv2.CAP_PROP_FRAME_COUNT)
         width = capture.get(cv2.CAP_PROP_FRAME_WIDTH)
         height = capture.get(cv2.CAP_PROP_FRAME_HEIGHT)
@@ -372,7 +372,7 @@ class VideoInfo:
 
 
 def save_clip(destination: Path, frames, info: VideoInfo) -> int:
-    temporary = destination.with_name(f'{destination.stem}.partial.mp4')  # نحفظ المقطع باسم نهائي بعد اكتماله
+    temporary = destination.with_name(f'{destination.stem}.partial.mp4')  # يُكتب المقطع باسم مؤقت، ثم يأخذ الاسم النهائي بعد اكتمال الكتابة.
     size = (info.width + info.width % 2, info.height + info.height % 2)
     try:
         writer = cv2.VideoWriter(str(temporary), cv2.VideoWriter_fourcc(*'mp4v'), info.fps, size)
@@ -401,19 +401,19 @@ def source_reference(source: Path):
     expected = REFERENCE_CLIPS.get(source.name)
     if expected is None or source.stat().st_size != expected[0]:
         return None
-    sha256 = hashlib.sha256(source.read_bytes()).hexdigest()  # نربط المصدر بعد التحقق من نسخة الفيديو
+    sha256 = hashlib.sha256(source.read_bytes()).hexdigest()  # بصمة الملف تتأكد أن المقطع يطابق نسخة الباحثين قبل إرفاق رابط المصدر في الملخص.
     if sha256 != expected[1]:
         return None
     return {'dataset': DATASET, 'clip': f'{CLIP_SOURCE}/{source.name}', 'paper': PAPER, 'sha256': sha256}
 
 
 def outage_frames(info: VideoInfo, interval):
-    if interval is None:  # نحاكي الانقطاع في الثلث الأوسط افتراضيًا
+    if interval is None:  # في التجربة الافتراضية نختار الثلث الأوسط حتى تحتوي العينة على فترة قبل الانقطاع وفترة بعده.
         first, end = info.frames // 3, info.frames * 2 // 3
     else:
         if any(not math.isfinite(seconds) or seconds <= 0 for seconds in interval):
             raise ValueError('Outage times must be positive, finite seconds.')
-        first, end = (math.ceil(seconds * info.fps) for seconds in interval)  # نحوّل الثواني إلى أرقام إطارات
+        first, end = (math.ceil(seconds * info.fps) for seconds in interval)  # يضرب البرنامج وقت الانقطاع في معدل الإطارات ليحدد الصور التي يبدأ عندها التسجيل وينتهي.
     if not 0 < first < end < info.frames:
         raise ValueError('Choose an outage that begins and ends within the video, with live frames on each side.')
     return first, end
@@ -426,14 +426,14 @@ def replay_live(capture, info: VideoInfo, outage, output: Path, event):
     yield from islice(frames, first)
 
     event('link_lost', first)
-    onboard = output / 'onboard' / 'outage.mp4'  # نحاكي التسجيل على الطائرة بمقطع محلي
+    onboard = output / 'onboard' / 'outage.mp4'  # الملف المحلي يمثل ما كانت ستسجله الكاميرا خلال الفترة التي انقطع فيها البث في المحاكاة.
     onboard.parent.mkdir()
     count = save_clip(onboard, islice(frames, end - first), info)
     if count != end - first:
         raise ValueError('Source ended before the simulated link could be restored. The partial onboard recording was saved.')
 
     event('link_restored', end)
-    recovered = output / 'recovered' / onboard.name  # نقرأ المقطع المسترجع قبل استئناف العرض
+    recovered = output / 'recovered' / onboard.name  # تسبق الصور المسترجعة الصور التالية للانقطاع، حتى يحافظ فيديو النتيجة على الترتيب الأصلي.
     recovered.parent.mkdir()
     staged = recovered.with_name('outage.partial.mp4')
     shutil.copyfile(onboard, staged)
@@ -454,7 +454,7 @@ def replay_live(capture, info: VideoInfo, outage, output: Path, event):
 
 
 def record_periodic(source: Path, output: Path, info: VideoInfo, seconds: float, event):
-    per_clip = max(1, round(seconds * info.fps))  # المقطع الأخير ممكن يكون أقصر
+    per_clip = max(1, round(seconds * info.fps))  # يتحول طول المقطع بالثواني إلى عدد صور لكل ملف، ويحفظ الملف الأخير ما تبقّى.
     folder = output / 'clips'
     folder.mkdir()
     start = 0
@@ -463,7 +463,7 @@ def record_periodic(source: Path, output: Path, info: VideoInfo, seconds: float,
         for number, first_frame in enumerate(frames, start=1):
             clip = folder / f'clip_{number:03}.mp4'
 
-            clip_frames = chain((first_frame,), islice(frames, per_clip - 1))  # نقرأ إطارات مقطع واحد
+            clip_frames = chain((first_frame,), islice(frames, per_clip - 1))  # تُضاف الصورة الأولى إلى بقية صور المقطع تدريجيًا، فيُكتب كل جزء أثناء القراءة.
             count = save_clip(clip, clip_frames, info)
             event('clip_saved', start, file=clip.relative_to(output).as_posix(), frames=count,
                   end_seconds=info.seconds(start + count))
@@ -475,7 +475,7 @@ def record_periodic(source: Path, output: Path, info: VideoInfo, seconds: float,
 def frame_stride(source_fps, latency_ms):
     rate_limit = math.ceil(source_fps / POLICY["max_analysis_fps"])
     time_limit = math.ceil(source_fps * latency_ms * POLICY["timing_margin"] / 1000)
-    return max(1, rate_limit, time_limit)  # نحلل إطارًا واحدًا من كل هذا العدد
+    return max(1, rate_limit, time_limit)  # الفاصل في المحاكاة يحترم حد معدل الصور والزمن المقاس للتحليل، ويحدد عدد الصور بين تحليلين.
 
 
 @dataclass
@@ -487,11 +487,11 @@ class RateController:
     def update(self, median_ms):
         suggested = frame_stride(self.source_fps, median_ms)
         if suggested > self.stride:
-            self.stride, self.lower_windows = suggested, 0  # نخفف عدد الإطارات المحللة إذا زاد وقت المعالجة
+            self.stride, self.lower_windows = suggested, 0  # زيادة الفاصل تقلل عدد الصور المطلوب تحليلها فور ارتفاع زمن المعالجة.
             return self.stride
         if suggested < self.stride:
             self.lower_windows += 1
-            if self.lower_windows >= 2:  # نزيد التحليل بعد قياسين أسرع متتاليين
+            if self.lower_windows >= 2:  # يتطلب الرجوع إلى تحليل صور أكثر قياسين أسرع متتاليين حتى يستقر الحمل.
                 self.stride, self.lower_windows = suggested, 0
                 return self.stride
         else:
@@ -506,32 +506,32 @@ def class_mapping(names):
         normal = str(name).strip().lower().replace("-", "").replace("_", "")
         for canonical, aliases in TARGET_ALIASES.items():
             if normal in aliases:
-                mapping[int(index)] = canonical  # نستخدم اسم الفئة المعتمد في المشروع
+                mapping[int(index)] = canonical  # يظل رقم الفئة كما يخرجه النموذج، ويستخدم الجدول الاسم المتفق عليه داخل المشروع.
                 break
     return mapping
 
 
-def select_profile(profiles, source_fps, difficult, *, recorded=False):
+def select_profile(profiles, source_fps, difficult, *, recorded=False):  # يختار من نتائج التجارب الناجحة وفق الفئات المتاحة وزمن المعالجة والتقييمات المحفوظة.
     good = [p for p in profiles if p.get("ok") and p["latency_ms"] > 0
             and math.isfinite(p["latency_ms"]) and p["supported_classes"]]
-    if not good:
+    if not good:  # تحتاج الجلسة تجربة واحدة صالحة على الأقل حتى تقدر تختار نموذجًا.
         raise ValueError("No local detection model completed a valid calibration trial.")
     groups = {}
     for p in good:
         groups.setdefault(tuple(sorted(p["supported_classes"])), []).append(p)
     supported = max(sorted(groups), key=lambda key: (len(key), len(groups[key])))
-    comparable = groups[supported]  # نقارن الإعدادات التي تدعم نفس الفئات
+    comparable = groups[supported]  # تدخل المقارنة إعدادات من مجموعة الفئات المختارة حتى تراعي عدد أنواع الأجسام المدعومة.
     target_fps = min(source_fps, POLICY["max_analysis_fps"])
-    budget_ms = 1000 / target_fps
+    budget_ms = 1000 / target_fps  # هذا الزمن المتوقع لمعالجة صورة واحدة ضمن المعدل المستهدف.
     feasible = [p for p in comparable
                 if p["latency_ms"] * POLICY["timing_margin"] <= budget_ms]
-    eligible = comparable if recorded else feasible  # يجوز أن يستغرق تحليل التسجيل وقتًا أطول من تشغيله
+    eligible = comparable if recorded else feasible  # يسمح الفيديو المسجل بإعداد يستغرق وقتًا أطول من العرض عند توفر تقييم سابق لهذا الإعداد.
     validated = [p for p in eligible if "validation_map50" in p]
-    if validated:
+    if validated:  # يعتمد قرار الدقة على نتائج تحقق محفوظة عندما تتوفر لإعداد مؤهل.
         selected = max(validated, key=lambda p: (p["validation_map50"], -p["latency_ms"]))
         reason = "Selected by labelled validation mAP50 within the eligible class coverage and timing constraints."
     elif feasible:
-        if difficult:  # نعتمد جودة الصورة عند غياب نتائج تحقق معتمدة
+        if difficult:  # عند غياب تقييم مناسب، يعطي البرنامج أولوية للإعدادات بحسب وضوح العينة وزمن التشغيل المقاس.
             selected = max(feasible, key=lambda p: (p["parameters"], p["imgsz"], -p["latency_ms"]))
         else:
             selected = max(feasible, key=lambda p: (p["imgsz"], p["parameters"], -p["latency_ms"]))
@@ -540,11 +540,11 @@ def select_profile(profiles, source_fps, difficult, *, recorded=False):
         selected = min(comparable, key=lambda p: p["latency_ms"])
         reason = "No profile meets the timing budget; selected the fastest compatible profile."
     stride = 1 if recorded else frame_stride(source_fps, selected["latency_ms"])
-    return dict(selected), stride, reason  # نحلل كل الإطارات إذا كانت الخطوة واحدًا
+    return dict(selected), stride, reason  # تتضمن النتيجة إعداد النموذج، والفاصل الذي سيستخدم للتحليل، ونص السبب الذي يظهر في سجل القرار.
 
 
 def validation_profiles(project_root):
-    path = project_root / "docs" / "validation_profiles.json"  # درجات تحقق اختيارية مرتبطة بالنماذج وأحجام الإدخال
+    path = project_root / "docs" / "validation_profiles.json"  # يقرأ البرنامج تقييمات تحقق سابقة مرتبطة ببصمة ملف النموذج وحجم الإدخال اللذين جرى تقييمهما فعليًا.
     if not path.is_file():
         return None, {}
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -568,7 +568,7 @@ def validation_profiles(project_root):
 
 
 def checked_video(value):
-    if "://" in str(value) or str(value).isdigit():  # نقبل ملفات الفيديو المحلية فقط
+    if "://" in str(value) or str(value).isdigit():  # تعمل هذه التجربة على فيديو محفوظ على الجهاز حتى يستطيع الزملاء إعادة تشغيل نفس المقطع.
         raise ValueError("Use a local recorded video file, not a camera number or stream URL.")
     path = Path(value).expanduser().resolve()
     if not path.is_file():
@@ -580,11 +580,11 @@ def checked_video(value):
 
 def write_json(path, data):
     text = json.dumps(data, indent=2, ensure_ascii=False, allow_nan=False)
-    path.write_text(text, encoding="utf-8")  # نحفظ الإعدادات والنتائج في ملف نصّي مقروء
+    path.write_text(text, encoding="utf-8")  # يُحفظ السجل بصيغة منظّمة يمكن فتحها كنص وقراءتها برمجيًا، مع عرض الأحرف العربية بوضوح.
 
 
 def sample_video(capture, total, calibration_end):
-    sample_count = total if calibration_end is None else min(total, calibration_end)  # نختار العينات من الجزء الذي يسبق الانقطاع
+    sample_count = total if calibration_end is None else min(total, calibration_end)  # في محاكاة الانقطاع يختار البرنامج إعداداته من الصور التي كان يمكن قراءتها قبل فقد الاتصال.
     positions = sorted({round((sample_count - 1) * fraction) for fraction in POLICY["sample_fractions"]})
     samples, quality = [], []
     for position in positions:
@@ -595,7 +595,7 @@ def sample_video(capture, total, calibration_end):
         samples.append(frame)
         scale = min(1.0, 640 / max(frame.shape[:2]))
         probe = cv2.resize(frame, None, fx=scale, fy=scale) if scale < 1 else frame
-        gray = cv2.cvtColor(probe, cv2.COLOR_BGR2GRAY)  # نقيس جودة الإطار بألوان رمادية
+        gray = cv2.cvtColor(probe, cv2.COLOR_BGR2GRAY)  # تُستخدم درجات الرمادي لحساب إضاءة الصورة وتباينها وحدّة تفاصيلها على نفس المقياس تقريبًا.
         quality.append({"brightness": float(gray.mean()), "contrast": float(gray.std()),
                         "laplacian_variance": float(cv2.Laplacian(gray, cv2.CV_64F).var())})
     if not samples:
@@ -614,19 +614,19 @@ def sync_device(device):
     if device != "cpu":
         import torch
 
-        torch.cuda.synchronize()  # ننتظر كرت الشاشة قبل حساب الوقت
+        torch.cuda.synchronize()  # أوامر كرت الشاشة قد تُرسل قبل اكتمالها. الانتظار هنا يجعل زمن القياس يشمل العمل الفعلي على الكرت.
 
 
 def calibrate_models(project_root, output, samples, video_long_edge, device):
     import torch
     from ultralytics import YOLO
 
-    weights = project_root / "weights"  # نستخدم النماذج الموجودة على الجهاز
+    weights = project_root / "weights"  # المجلد هو نقطة البحث عن النماذج الجاهزة وعن الملفات الناتجة من تدريب الفريق.
     official = {path.name: path for path in sorted(project_root.glob("yolov8*.pt"))}
     official.update({path.name: path for path in sorted(weights.glob("yolov8*.pt"))})
     paths = [official[name] for name in sorted(official)]
-    paths.extend(sorted((weights / "academic").glob("*.pt")))
-    if not paths:
+    paths.extend(sorted((weights / "academic").glob("*.pt")))  # يدخل النموذج الجديد في المقارنة تلقائيًا عندما يضع الفريق ملف الأوزان هنا.
+    if not paths:  # يفشل الاختبار برسالة إعداد واضحة إذا لم يجد ملفات نموذج محلية.
         raise ValueError("Put local YOLOv8 model files in weights/, or trained models in weights/academic/.")
     protocol, validation_scores = validation_profiles(project_root)
     profiles = []
@@ -645,7 +645,7 @@ def calibrate_models(project_root, output, samples, video_long_edge, device):
             digest = None
             if validation_scores:
                 with path.open("rb") as file:
-                    digest = hashlib.file_digest(file, "sha256").hexdigest()  # نطابق نتيجة التحقق مع نسخة النموذج نفسها
+                    digest = hashlib.file_digest(file, "sha256").hexdigest()  # تمنع البصمة تطبيق تقييم نموذج قديم على ملف أوزان آخر حتى إذا تساوت أسماؤهما.
             sizes = [size for size in POLICY["sizes"]
                      if size == 640 or video_long_edge >= size or (digest, size) in validation_scores]
             for size in sizes:
@@ -656,8 +656,8 @@ def calibrate_models(project_root, output, samples, video_long_edge, device):
                                  validation_protocol=protocol, weights_sha256=digest)
                 try:
                     kwargs = dict(imgsz=size, conf=POLICY["confidence"], classes=sorted(mapping), device=device, verbose=False)
-                    model.predict(samples[0], **kwargs)  # نشغّل النموذج مرة قبل قياس الوقت
-                    times = []
+                    model.predict(samples[0], **kwargs)  # أول توقع يهيّئ النموذج وموارد التشغيل قبل تسجيل زمن المعالجة على الصور التالية.
+                    times = []  # نسجل أوقات الصور بعد التهيئة حتى يمثل القياس سرعة التحليل أثناء العمل المعتاد.
                     for frame in samples:
                         sync_device(device)
                         tick = time.perf_counter()
@@ -665,7 +665,7 @@ def calibrate_models(project_root, output, samples, video_long_edge, device):
                         sync_device(device)
                         times.append((time.perf_counter() - tick) * 1000)
                         del result
-                    trial.update(ok=True, latency_ms=statistics.median(times))
+                    trial.update(ok=True, latency_ms=statistics.median(times))  # الزمن الأوسط يقلل أثر قراءة واحدة بطيئة على قرار اختيار الإعداد.
                     print(f"Calibrated {path.name}, size {size}: {trial['latency_ms']:.1f} ms", flush=True)
                 except Exception as exc:
                     trial.update(ok=False, error=f"{type(exc).__name__}: {exc}")
@@ -694,25 +694,25 @@ def write_detections(result, names, table, index, fps):
     labels = []
     for class_id, score, position, track_id in zip(classes, scores, positions, track_ids):
         name = names[class_id]
-        table.writerow([index, index / fps, name, score, track_id, *position])  # نحفظ سطرًا في الجدول لكل جسم
-        shown_id = "-" if track_id == "" else track_id  # نعرض شرطة إذا لم يُسند رقم تتبّع
+        table.writerow([index, index / fps, name, score, track_id, *position])  # يسمح السطر بربط كل كشف بوقت ظهوره وفئته ورقم تتبّعه وموقع مربعه داخل الصورة.
+        shown_id = "-" if track_id == "" else track_id  # تظهر شرطة إذا لم يسند المتتبّع رقمًا لهذا الكشف عند حفظه.
         labels.append(f"ID {shown_id}  {name}  {score:.0%}")
     return labels
 
 
 def annotate_frame(image, size, labels, analysed, class_warning):
-    image = cv2.resize(image, size, interpolation=cv2.INTER_AREA)  # نضبط حجم الإطار ليناسب فيديو النتائج
+    image = cv2.resize(image, size, interpolation=cv2.INTER_AREA)  # تُوحّد أبعاد الصورة مع أبعاد ملف الفيديو الناتج قبل إرساله إلى كاتب الفيديو.
     lines = labels[:8]
     if len(labels) > 8:
         lines.append(f"+ {len(labels) - 8} more detections")
     for row, label in enumerate(lines):
         y = 22 + row * 22
         corner = (min(size[0] - 5, 290), y + 4)
-        cv2.rectangle(image, (5, y - 17), corner, (25, 35, 30), -1)  # نضع خلفية داكنة خلف كل تسمية
+        cv2.rectangle(image, (5, y - 17), corner, (25, 35, 30), -1)  # تجعل الخلفية اسم الفئة ورقم التتبع واضحين فوق صور الفيديو الفاتحة أو المزدحمة.
         cv2.putText(image, label, (10, y), cv2.FONT_HERSHEY_SIMPLEX, .48, (255, 255, 255), 1, cv2.LINE_AA)
     if not analysed:
         cv2.putText(image, "Not analysed (automatic scheduling)", (10, 25),
-                    cv2.FONT_HERSHEY_SIMPLEX, .55, (0, 165, 255), 2)  # نوضح في الفيديو الإطارات التي تجاوزناها في المحاكاة
+                    cv2.FONT_HERSHEY_SIMPLEX, .55, (0, 165, 255), 2)  # تُظهر هذه العبارة أن الإطار بقي في فيديو المحاكاة بينما تجاوزته المعالجة بسبب الجدولة.
     if class_warning:
         origin = (10, size[1] - 12)
         cv2.putText(image, class_warning, origin, cv2.FONT_HERSHEY_SIMPLEX, .48, (0, 0, 0), 3)
@@ -723,7 +723,7 @@ def annotate_frame(image, size, labels, analysed, class_warning):
 def open_result(video: Path) -> bool:
     try:
         if sys.platform == "win32":
-            os.startfile(str(video.resolve()))  # نفتح الفيديو المحفوظ في المشغّل الافتراضي
+            os.startfile(str(video.resolve()))  # بعد اكتمال التجربة يفتح المشغّل الذي يستخدمه ويندوز عادة للفيديو حتى يقدر المستخدم يراجع النتيجة.
         else:
             subprocess.Popen(["open" if sys.platform == "darwin" else "xdg-open", str(video.resolve())])
         return True
@@ -732,5 +732,5 @@ def open_result(video: Path) -> bool:
         return False
 
 
-if __name__ == '__main__':  # نشغّل القائمة عند فتح الملف مباشرة
-    main()
+if __name__ == '__main__':  # يتحقق هذا الشرط أن بايثون بدأ من هذا الملف نفسه، كما يحدث عند تشغيل run.bat.
+    main()  # تقرأ main طريقة التشغيل. إذا شغّل المستخدم الملف بدون خيارات، تعرض قائمة التجارب وتنتظر اختياره.
