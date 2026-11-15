@@ -78,6 +78,17 @@ class AutomationPolicyTests(unittest.TestCase):
         picked, _, _ = select_profile([large, measured], 30, False)
         self.assertEqual(picked["weights"], "measured.pt")
 
+    def test_recorded_analysis_excludes_unverified_custom_model_before_class_ranking(self):
+        four = ("airplane", "bird", "helicopter", "drone")
+        unverified = dict(profile("custom.pt", classes=four), recorded_selection_error="Missing validation")
+        picked, stride, _ = select_profile([profile("baseline.pt"), unverified], 30, False, recorded=True)
+        self.assertEqual((picked["weights"], stride), ("baseline.pt", 1))
+
+    def test_recorded_analysis_rejects_only_available_model_when_validation_failed(self):
+        failed = dict(profile("failed.pt"), validation_map50=0.0, recorded_selection_error="Failed validation")
+        with self.assertRaisesRegex(ValueError, "No model is eligible"):
+            select_profile([failed], 30, False, recorded=True)
+
     def test_scheduler_recovers_from_stride_two_to_one(self):
         controller = RateController(30, 2)
         self.assertIsNone(controller.update(10))

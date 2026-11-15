@@ -48,7 +48,7 @@
 .\venv\Scripts\python.exe .\tools\train_detector.py --data ".\datasets\new_dataset\data.yaml" --model ".\weights\yolov8n.pt" --split val --output ".\results\new_dataset_val.csv"
 ~~~
 
-4. يضع التدريب ملف الأوزان `best.pt` في مجلد التشغيل داخل `runs_model_comparison`. بعد مراجعته، انسخه باسم يميز التجربة إلى `weights/academic/`. عند تشغيل الخيار **3** يدخل ضمن النماذج التي يجربها البرنامج. راجع `decision.json` لمعرفة أي نموذج اختاره فعلًا.
+4. يضع التدريب ملف الأوزان `best.pt` في مجلد التشغيل داخل `runs_model_comparison`. يمكن وضع نسخة منه باسم يميز التجربة في `weights/academic/`. في الخيار **3** يمكن اختيار الأوزان المخصّصة بعد تسجيل قياس تحقق موجب في `docs/validation_profiles.json` يطابق بصمة الأوزان وحجم الإدخال وفئات التحقق الموثقة في الملف. يوضح `calibration.json` سبب استبعاد الإعداد، ويذكر `decision.json` النموذج المختار.
 
 بعد كل تدريب، افتح `training_run.json` بجانب ملفات النموذج. يبيّن أي بيانات استُخدمت، وأي ملف أوزان خرج من التدريب، ومسار جدول التقييم. تظهر فيه حالة `trained` بعد حفظ الأوزان، ثم `evaluated` بعد حفظ القياسات. [سجل التدريبات التجريبية](docs/automation_verification.md#training-log)
 

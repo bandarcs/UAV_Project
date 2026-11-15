@@ -45,7 +45,7 @@ TARGET_ALIASES = {  # تربط هذه القائمة أسماء النماذج �
     "bird": {"bird"},
 }
 POLICY = {
-    "version": "validation-aware-policy-v3",
+    "version": "validation-aware-policy-v4",
     "max_analysis_fps": 30,
     "confidence": 0.25,
     "sample_fractions": [0.1, 0.5, 0.9],  # توزيع العيّنات على أجزاء مختلفة يساعد على تقدير وضوح المقطع حتى لو تغيرت الإضاءة أثناء التصوير.
@@ -516,6 +516,10 @@ def select_profile(profiles, source_fps, difficult, *, recorded=False):  # يخ�
             and math.isfinite(p["latency_ms"]) and p["supported_classes"]]
     if not good:  # تحتاج الجلسة تجربة واحدة صالحة على الأقل حتى تقدر تختار نموذجًا.
         raise ValueError("No local detection model completed a valid calibration trial.")
+    if recorded:
+        good = [p for p in good if p.get("recorded_selection_error") is None]  # نجاح تشغيل النموذج وحده لا يكفي لاختيار أوزان تجريبية للفيديو المسجّل.
+        if not good:
+            raise ValueError("No model is eligible for recorded analysis. Install baseline weights or validate the custom weights and input size first.")
     groups = {}
     for p in good:
         groups.setdefault(tuple(sorted(p["supported_classes"])), []).append(p)
@@ -625,7 +629,8 @@ def calibrate_models(project_root, output, samples, video_long_edge, device):
     official = {path.name: path for path in sorted(project_root.glob("yolov8*.pt"))}
     official.update({path.name: path for path in sorted(weights.glob("yolov8*.pt"))})
     paths = [official[name] for name in sorted(official)]
-    paths.extend(sorted((weights / "academic").glob("*.pt")))  # يدخل النموذج الجديد في المقارنة تلقائيًا عندما يضع الفريق ملف الأوزان هنا.
+    academic_paths = sorted((weights / "academic").glob("*.pt"))
+    paths.extend(academic_paths)
     if not paths:  # يفشل الاختبار برسالة إعداد واضحة إذا لم يجد ملفات نموذج محلية.
         raise ValueError("Put local YOLOv8 model files in weights/, or trained models in weights/academic/.")
     protocol, validation_scores = validation_profiles(project_root)
@@ -654,6 +659,10 @@ def calibrate_models(project_root, output, samples, video_long_edge, device):
                 if (digest, size) in validation_scores and set(mapping.values()) == set(TARGET_ALIASES):
                     trial.update(validation_map50=validation_scores[digest, size],
                                  validation_protocol=protocol, weights_sha256=digest)
+                if trial.get("validation_map50") == 0:
+                    trial["recorded_selection_error"] = "No correct detections in labelled validation."
+                elif path in academic_paths and "validation_map50" not in trial:
+                    trial["recorded_selection_error"] = "Custom weights and input size lack matching labelled validation."  # التحقق يرتبط ببصمة الأوزان وحجم الإدخال نفسهما، حتى لا تنتقل نتيجة قديمة إلى إعداد جديد.
                 try:
                     kwargs = dict(imgsz=size, conf=POLICY["confidence"], classes=sorted(mapping), device=device, verbose=False)
                     model.predict(samples[0], **kwargs)  # أول توقع يهيّئ النموذج وموارد التشغيل قبل تسجيل زمن المعالجة على الصور التالية.
