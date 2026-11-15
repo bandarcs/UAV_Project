@@ -1,4 +1,5 @@
 @echo off
+REM Run from the project folder even when Windows starts this file elsewhere.
 cd /d "%~dp0"
 setlocal
 if not exist "venv\Scripts\python.exe" (
@@ -6,14 +7,12 @@ if not exist "venv\Scripts\python.exe" (
   pause
   exit /b 2
 )
-if not "%~1"=="" goto analyse
-"venv\Scripts\python.exe" uav_session.py --menu
+REM One Python entry point handles both the menu and arguments.
+"venv\Scripts\python.exe" "%~dp0uav_project.py" %*
 set "run_status=%errorlevel%"
-pause
-exit /b %run_status%
-
-:analyse
-"venv\Scripts\python.exe" automation.py %*
-set "run_status=%errorlevel%"
-if not "%run_status%"=="0" pause
+if "%~1"=="" (
+  pause
+) else if not "%run_status%"=="0" (
+  pause
+)
 exit /b %run_status%

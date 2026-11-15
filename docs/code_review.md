@@ -1,38 +1,20 @@
-# Code review and entry points
+# Project layout
 
-All active Python filenames describe their purpose. Inference programs that
-overlapped are consolidated instead of keeping several inconsistent versions.
+Use [`run.bat`](../run.bat) on Windows. It forwards the menu and any command-line arguments to [`uav_project.py`](../uav_project.py).
 
-| Entry point | Purpose |
+| Path | Purpose |
 | --- | --- |
-| `automation.py` | Automatic local-video profiling, scheduling, YOLO + ByteTrack, saved results and playback |
-| `detect_airborne_targets.py` | Manual fixed-setting baseline with preview and CSV |
-| `detect_video_sahi.py` | Separate sliced-inference airplane baseline; detection, not ByteTrack |
-| `prepare_dataset.py` | Validate reviewed YOLO labels, sequence splits and duplicates |
-| `train_detector.py` | Single-model entry point to the shared training pipeline |
-| `compare_models.py` | Multi-model training/evaluation and measured comparison |
-| `test_automation.py` | Profile selection, scheduling, class coverage and playback checks |
-| `test_prepare_dataset.py` | Annotation integrity, negatives and split-leakage checks |
+| `uav_project.py` | Runs the menu, video replay, automatic model and size selection, detection, tracking, and result saving. |
+| `tools/prepare_dataset.py` | Checks image labels, class names, and data splits. |
+| `tools/train_detector.py` and `tools/compare_models.py` | Train or compare models with a reviewed dataset. |
+| `experiments/detect_airborne_targets.py` | Manual detection and tracking experiment. |
+| `experiments/detect_video_sahi.py` | Separate detection experiment using image slices. |
+| `tests/` | Checks for the analysis policy and dataset preparation. |
 
-Removed overlapping scripts: `Detect airborne_targets.py`,
-`detect_plane_better.py`, `predict_drone_or_plane.py`. Their previous versions
-remain recoverable in Git history. `track_aircraft.py` is now
-`detect_video_sahi.py` because it performs sliced detection without tracking.
-`train_drone_vs_plane.py` is now `train_detector.py` and shares the comparison
-pipeline instead of duplicating training and evaluation logic.
+Start at `main` in `uav_project.py`, then follow `execute` to see which task runs. The `run` function reads sample frames, picks the settings automatically, and writes the results. Explanations sit beside the relevant statements as Python `#` comments. Training, experiments, and software checks have their own entry points.
 
-Corrections: no silent overwrite of manual output; civilian bird class in the
-manual baseline; SAHI checks file paths, settings and writer creation, releases
-resources on exceptions and resolves airplane labels by name rather than assuming
-class ID 4 in every model. Automatic scheduling can recover from stride two to
-one; incomplete model class coverage stays visible on output video. Playback
-failure leaves saved results intact. Training and comparison require explicit
-reviewed data; they are not evidence that training has already been performed.
+```powershell
+.\venv\Scripts\python.exe -m unittest discover -s tests -v
+```
 
-The automated workflow selects a model and size at startup and adjusts stride
-during the run. It does not automatically select SAHI or learn a controller.
-Passing software checks is not a guarantee of detector accuracy or absence of
-all possible faults. The reference-video experiment and observed limitations are
-in [verification](automation_verification.md).
-
-Runtime smoke checks: the retained manual and SAHI paths each processed a 12-frame derivative of the author airplane clip. Both output videos were decoded again and contained all 12 frames. These checks establish pipeline execution, not accuracy. Training was not run; its CLI and missing-data rejection were checked.
+The old `uav_session.py` command is now `uav_project.py`. To replace the old `automation.py <video>` command, use `run.bat <video>`. The demo, saved-clip input, replay and clip-splitting options are described in the [session guide](session_workflow.md).

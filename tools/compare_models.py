@@ -169,6 +169,11 @@ def main() -> int:
         print(f"=== {model_name}: training ===")
 
         try:
+            # Prefer the project's organised copy when a bare model name is supplied.
+            requested = Path(model_name)
+            saved_model = Path(__file__).resolve().parents[1] / "weights" / requested.name
+            if requested.name == model_name and not requested.is_file() and saved_model.is_file():
+                model_name = str(saved_model)
             model = YOLO(model_name)
             train_start = time.perf_counter()
             model.train(

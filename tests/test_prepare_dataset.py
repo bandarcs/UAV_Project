@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from PIL import Image
-from prepare_dataset import prepare
+from tools.prepare_dataset import prepare
 
 
 class DatasetPreparationTests(unittest.TestCase):

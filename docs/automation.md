@@ -1,12 +1,12 @@
 # Recorded video automation
 
-`automation.py` is an offline academic experiment for local video files. Supply
+[`uav_project.py`](../uav_project.py) runs the local-video analysis. Start it through `run.bat`. Supply
 one video; the program discovers local detection weights, checks their supported
 classes, measures several processing profiles and selects one automatically.
 It does not connect to an aircraft or accept camera/stream URLs.
 
 ```powershell
-.\venv\Scripts\python.exe automation.py test01.mp4
+.\run.bat "datasets\local_clips\test01.mp4"
 ```
 
 No model, image size, tracker, confidence or frame-rate choice is required from
@@ -17,8 +17,8 @@ results folder. It must not already exist.
 
 1. Read the source dimensions and frame rate and sample three time positions.
 2. Measure brightness, contrast and a fixed-scale sharpness indicator.
-3. Find trusted local `yolov8*.pt` files beside the program and custom detection
-   weights in `weights/academic/`. No weights or data are downloaded.
+3. Find trusted local `yolov8*.pt` files in `weights/` and custom detection
+   weights in `weights/academic/`. Existing copies beside the program still work.
 4. Warm up and time the 640 input profile and larger profiles when the source
    has enough pixels or the exact model and size have a validation record.
    Ultralytics preserves the source aspect ratio.

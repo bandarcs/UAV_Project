@@ -1,6 +1,6 @@
 """Train one detector using the shared, validated training/evaluation pipeline.
 
-Example: python train_detector.py --data reviewed/data.yaml --model yolov8n.pt
+Example: python tools/train_detector.py --data reviewed/data.yaml --model yolov8n.pt
 No training is started by importing this module. Training requires reviewed labels.
 """
 import sys

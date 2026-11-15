@@ -7,10 +7,10 @@ IMPORTANT:
     require a model trained on labeled examples of them.
 
 Example (run from the UAV project folder):
-    .\venv\Scripts\python.exe detect_airborne_targets.py
+    .\venv\Scripts\python.exe experiments\detect_airborne_targets.py
 
 Choose another video or trained model:
-    .\venv\Scripts\python.exe detect_airborne_targets.py --source test02.mp4 --weights weights\best.pt
+    .\venv\Scripts\python.exe experiments\detect_airborne_targets.py --source datasets\local_clips\test02.mp4 --weights weights\best.pt
 
 The program saves an annotated video and a CSV file under runs/airborne/.
 """
@@ -22,6 +22,9 @@ from pathlib import Path
 
 import cv2
 from ultralytics import YOLO
+
+
+PROJECT = Path(__file__).resolve().parents[1]
 
 
 # These are the names this program recognizes in the model's class list.
@@ -123,8 +126,9 @@ def main():
     parser = argparse.ArgumentParser(
         description="Detect and track airborne classes supported by the chosen YOLO weights."
     )
-    parser.add_argument("--source", default="Bush_Flyover.mp4", help="Video filename or camera number (for example 0).")
-    parser.add_argument("--weights", default="yolov8m.pt", help="YOLO weights file; custom trained weights can add more classes.")
+    # Defaults match the local media folders. Explicit paths remain supported.
+    parser.add_argument("--source", default=str(PROJECT / "datasets/local_clips/Bush_Flyover.mp4"), help="Video filename or camera number (for example 0).")
+    parser.add_argument("--weights", default=str(PROJECT / "weights/yolov8m.pt"), help="YOLO weights file; custom trained weights can add more classes.")
     parser.add_argument("--conf", type=float, default=0.10, help="Minimum confidence from 0 to 1 (default: 0.10).")
     parser.add_argument("--imgsz", default="auto", help="Analysis size in pixels, or auto to compare several sizes on this video.")
     parser.add_argument("--augment", action="store_true", help="Try multiple image scales; slower, may find more small objects.")

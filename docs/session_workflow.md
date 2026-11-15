@@ -25,12 +25,12 @@ py -3.14 -m venv venv
 .\venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-للتشغيل انسخ الأوزان المحلية مثل `yolov8n.pt` إلى جذر المشروع، وضع المقطع في مساره أعلاه، ثم افتح `run.bat`. الأوزان ومقاطع الفيديو ومجلد النتائج موجودة محليًا وتُنقل بشكل منفصل عند استخدام GitHub. يختار التحليل GPU عند توفره ويعمل على CPU أيضًا. يمكنك تعديل ملفات `.py` في VS Code بعد فتح مجلد المشروع.
+للتشغيل انسخ الأوزان المحلية مثل `yolov8n.pt` إلى مجلد `weights/`، وضع المقطع في مساره أعلاه، ثم افتح `run.bat`. الأوزان ومقاطع الفيديو ومجلد النتائج موجودة محليًا وتُنقل بشكل منفصل عند استخدام GitHub. يختار التحليل GPU عند توفره ويعمل على CPU أيضًا. ابدأ قراءة الكود من `uav_project.py`.
 
 للتشغيل من PowerShell والتحكم بالوقت في العرض:
 
 ```powershell
-.\venv\Scripts\python.exe uav_session.py live --outage 3 7
-.\venv\Scripts\python.exe uav_session.py periodic --clip-seconds 3
-.\venv\Scripts\python.exe uav_session.py analyse 'C:\path\to\clip_001.mp4'
+.\run.bat live --outage 3 7
+.\run.bat periodic --clip-seconds 3
+.\run.bat analyse 'C:\path\to\clip_001.mp4'
 ```

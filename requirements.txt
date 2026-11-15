@@ -1,6 +1,5 @@
 ultralytics==8.4.174
 opencv-python==5.0.0.93
-sahi==0.12.8
 PyYAML==6.0.3
 lap==0.5.13
 torch==2.11.0

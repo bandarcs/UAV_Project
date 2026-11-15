@@ -16,7 +16,7 @@ Each row needs an existing image, an existing label file, and its **source video
 Provide a split for every row to preserve a reviewed partition. If all split cells are empty, the tool assigns complete sequence groups to approximate 70/20/10 train/validation/test proportions. Exact duplicates are grouped together too. At least three independent groups are needed. Official benchmark test sets should retain their published membership.
 
 ```powershell
-.\venv\Scripts\python.exe prepare_dataset.py --manifest "datasets\source\manifest.csv" --output "datasets\checked_run_01" --classes airplane helicopter bird --source-url "https://source.example/dataset" --license "LICENSE-AS-PUBLISHED"
+.\venv\Scripts\python.exe tools\prepare_dataset.py --manifest "datasets\source\manifest.csv" --output "datasets\checked_run_01" --classes airplane helicopter bird --source-url "https://source.example/dataset" --license "LICENSE-AS-PUBLISHED"
 ```
 
 The command writes `summary.json` and `checked_manifest.csv` into a **new** output directory. The example class names and source URL are placeholders, not a claim about a downloaded dataset.

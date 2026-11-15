@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from automation import RateController, checked_video, class_mapping, select_profile, open_result
+from uav_project import RateController, checked_video, class_mapping, select_profile, open_result
 
 
 def profile(name="n.pt", size=640, ms=10, parameters=3, classes=("airplane", "bird"), ok=True):
@@ -14,12 +14,12 @@ def profile(name="n.pt", size=640, ms=10, parameters=3, classes=("airplane", "bi
 
 class AutomationPolicyTests(unittest.TestCase):
     def test_player_launches_completed_local_file(self):
-        with patch('automation.sys.platform', 'win32'), patch('automation.os.startfile', create=True) as launch:
+        with patch('uav_project.sys.platform', 'win32'), patch('uav_project.os.startfile', create=True) as launch:
             self.assertTrue(open_result(Path('annotated.mp4')))
             launch.assert_called_once_with(str(Path('annotated.mp4').resolve()))
 
     def test_player_failure_keeps_results_available(self):
-        with patch('automation.sys.platform', 'win32'), patch('automation.os.startfile', create=True, side_effect=OSError('No player')), patch('builtins.print'):
+        with patch('uav_project.sys.platform', 'win32'), patch('uav_project.os.startfile', create=True, side_effect=OSError('No player')), patch('builtins.print'):
             self.assertFalse(open_result(Path('annotated.mp4')))
 
     def test_missing_classes_are_not_invented(self):

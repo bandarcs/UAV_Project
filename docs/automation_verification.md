@@ -1,4 +1,4 @@
-# Recorded video verification
+# Recorded video verification before the folder reorganisation
 
 Seven local-video runs completed with the same automation source hash shown in
 the evidence below. Four are original visible-light reference clips from the

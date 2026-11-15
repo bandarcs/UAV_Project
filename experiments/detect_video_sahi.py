@@ -2,7 +2,7 @@ r"""
 Small / distant airplane detection using SAHI (sliced inference).
 
 Run:
-    .\venv\Scripts\python.exe detect_video_sahi.py
+    .\venv\Scripts\python.exe experiments\detect_video_sahi.py
 
 Optional:
     --source VIDEO.mp4   video file to analyze
@@ -13,6 +13,8 @@ Optional:
     --no_show            do not open the preview window (press Q to stop when shown)
 """
 import argparse
+import math
+from pathlib import Path
 import time
 
 import cv2
@@ -21,6 +23,7 @@ from sahi import AutoDetectionModel
 from sahi.predict import get_sliced_prediction
 
 BOX_WIDTH = 54
+PROJECT = Path(__file__).resolve().parents[1]
 AIRPLANE_NAMES = {"airplane", "aeroplane", "aircraft", "plane"}
 
 
@@ -31,16 +34,15 @@ def table_row(label, value):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--source", default="test02.mp4")
-    parser.add_argument("--model", default="yolov8m.pt")
+    # Use the relocated local sample and weights unless the operator passes paths.
+    parser.add_argument("--source", default=str(PROJECT / "datasets/local_clips/test02.mp4"))
+    parser.add_argument("--model", default=str(PROJECT / "weights/yolov8m.pt"))
     parser.add_argument("--conf", type=float, default=0.15)
     parser.add_argument("--slice", type=int, default=640)
     parser.add_argument("--overlap", type=float, default=0.2)
     parser.add_argument("--no_show", action="store_true")
     parser.add_argument("--output", default="runs/sahi/annotated.mp4")
     args = parser.parse_args()
-    from pathlib import Path
-    import math
     if not 0 <= args.conf <= 1 or args.slice < 32 or not 0 <= args.overlap < 1:
         parser.error("Require conf in [0,1], slice >= 32 and overlap in [0,1).")
     if not Path(args.source).is_file() or not Path(args.model).is_file():

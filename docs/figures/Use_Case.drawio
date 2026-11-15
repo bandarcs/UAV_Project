@@ -1,216 +1,164 @@
 <?xml version='1.0' encoding='utf-8'?>
-<mxfile host="app.diagrams.net">
+<mxfile host="draw.io">
   <diagram name="Use Case Diagram">
-    <mxGraphModel page="1" pageWidth="1500" pageHeight="1725" grid="0" background="#ffffff">
+    <mxGraphModel page="1" pageWidth="2040" pageHeight="1730" grid="0" background="#FFFFFF">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="system" parent="1" vertex="1" value="UAV Video Monitoring System" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;rounded=1;arcSize=2;fillColor=#ffffff;strokeColor=#32645c;strokeWidth=4.5;fontSize=49;fontStyle=1;verticalAlign=top;spacingTop=13;">
-          <mxGeometry x="172" y="15" width="1047" height="1608" as="geometry" />
+        <mxCell id="system" parent="1" vertex="1" value="UAV Video Monitoring System" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;rounded=1;arcSize=2;fillColor=#ffffff;strokeColor=#32645c;strokeWidth=6;fontSize=58;fontStyle=1;verticalAlign=top;spacingTop=28;">
+          <mxGeometry x="289" y="25" width="1462" height="1630" as="geometry" />
         </mxCell>
-        <mxCell id="session" parent="1" vertex="1" value="&lt;b&gt;Run UAV Video Session&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:25px&quot;&gt;Select live or periodic recording&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#edf5fc;strokeColor=#52738f;strokeWidth=3.5;fontSize=35;">
-          <mxGeometry x="434.0" y="103.5" width="500" height="111" as="geometry" />
+        <mxCell id="uav_lane" parent="1" vertex="1" value="UAV Video" style="shape=text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;fontFamily=Arial;fontSize=37;fontColor=#285674;fontStyle=1;">
+          <mxGeometry x="327" y="156" width="446" height="75" as="geometry" />
         </mxCell>
-        <mxCell id="live" parent="1" vertex="1" value="&lt;b&gt;Live Monitoring&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:25px&quot;&gt;Stream after takeoff&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#edf5fc;strokeColor=#52738f;strokeWidth=3.5;fontSize=35;">
-          <mxGeometry x="222.0" y="295.5" width="390" height="113" as="geometry" />
+        <mxCell id="system_lane" parent="1" vertex="1" value="Ground System" style="shape=text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;fontFamily=Arial;fontSize=37;fontColor=#32645c;fontStyle=1;">
+          <mxGeometry x="1102" y="156" width="536" height="75" as="geometry" />
         </mxCell>
-        <mxCell id="periodic" parent="1" vertex="1" value="&lt;b&gt;Periodic Recording&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:25px&quot;&gt;Store timestamped clips&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#edf5fc;strokeColor=#52738f;strokeWidth=3.5;fontSize=35;">
-          <mxGeometry x="738.0" y="295.5" width="414" height="113" as="geometry" />
-        </mxCell>
-        <mxCell id="onboard" parent="1" vertex="1" value="&lt;b&gt;Record on UAV&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:25px&quot;&gt;Store video during link loss&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#edf5fc;strokeColor=#52738f;strokeWidth=3.5;fontSize=35;">
-          <mxGeometry x="223.5" y="501.0" width="387" height="108" as="geometry" />
-        </mxCell>
-        <mxCell id="saved" parent="1" vertex="1" value="&lt;b&gt;Analyse Saved Clips&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:25px&quot;&gt;Select a clip later&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#f1f7f5;strokeColor=#32645c;strokeWidth=3.5;fontSize=35;">
-          <mxGeometry x="738.0" y="501.0" width="414" height="108" as="geometry" />
-        </mxCell>
-        <mxCell id="recover" parent="1" vertex="1" value="&lt;b&gt;Recover Missed Video&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:25px&quot;&gt;Transfer the saved segment&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#edf5fc;strokeColor=#52738f;strokeWidth=3.5;fontSize=35;">
-          <mxGeometry x="213.5" y="706.5" width="407" height="111" as="geometry" />
-        </mxCell>
-        <mxCell id="analyse" parent="1" vertex="1" value="&lt;b&gt;Analyse Video&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:25px&quot;&gt;Use the live feed or a clip&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#f1f7f5;strokeColor=#32645c;strokeWidth=3.5;fontSize=35;">
-          <mxGeometry x="746.0" y="706.5" width="398" height="111" as="geometry" />
-        </mxCell>
-        <mxCell id="detect" parent="1" vertex="1" value="&lt;b&gt;Detect Objects&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:25px&quot;&gt;Class, box, confidence&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#f1f7f5;strokeColor=#32645c;strokeWidth=3.5;fontSize=35;">
-          <mxGeometry x="233.5" y="902.0" width="367" height="108" as="geometry" />
-        </mxCell>
-        <mxCell id="auto" parent="1" vertex="1" value="&lt;b&gt;Automatic Setup&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:25px&quot;&gt;Model, size and rate&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#f1f7f5;strokeColor=#32645c;strokeWidth=3.5;fontSize=35;">
-          <mxGeometry x="760.5" y="902.0" width="369" height="108" as="geometry" />
-        </mxCell>
-        <mxCell id="track" parent="1" vertex="1" value="&lt;b&gt;Track Objects&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:25px&quot;&gt;Match across frames&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#f1f7f5;strokeColor=#32645c;strokeWidth=3.5;fontSize=35;">
-          <mxGeometry x="233.5" y="1093.0" width="367" height="108" as="geometry" />
-        </mxCell>
-        <mxCell id="view" parent="1" vertex="1" value="&lt;b&gt;View Results&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:25px&quot;&gt;Video, IDs and link status&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#f1f7f5;strokeColor=#32645c;strokeWidth=3.5;fontSize=35;">
-          <mxGeometry x="760.5" y="1093.0" width="369" height="108" as="geometry" />
-        </mxCell>
-        <mxCell id="ids" parent="1" vertex="1" value="&lt;b&gt;Assign Track IDs&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:25px&quot;&gt;One ID per active track&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#f1f7f5;strokeColor=#32645c;strokeWidth=3.5;fontSize=35;">
-          <mxGeometry x="233.5" y="1284.0" width="367" height="108" as="geometry" />
-        </mxCell>
-        <mxCell id="save" parent="1" vertex="1" value="&lt;b&gt;Save Results&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:25px&quot;&gt;Video, CSV and logs&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#f1f7f5;strokeColor=#32645c;strokeWidth=3.5;fontSize=35;">
-          <mxGeometry x="760.5" y="1284.0" width="369" height="108" as="geometry" />
-        </mxCell>
-        <mxCell id="print" parent="1" vertex="1" value="&lt;b&gt;Print Results&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:25px&quot;&gt;Summary on request&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#f1f7f5;strokeColor=#32645c;strokeWidth=3.5;fontSize=35;">
-          <mxGeometry x="760.5" y="1475.0" width="369" height="108" as="geometry" />
-        </mxCell>
-        <mxCell id="uav" parent="1" vertex="1" value="«actor»&lt;br&gt;&lt;b&gt;UAV&lt;/b&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;fillColor=#edf5fc;strokeColor=#52738f;strokeWidth=2.7;fontSize=34;">
-          <mxGeometry x="10" y="422" width="135" height="240" as="geometry" />
-        </mxCell>
-        <mxCell id="admin" parent="1" vertex="1" value="«actor»&lt;br&gt;&lt;b&gt;Admin&lt;/b&gt;&lt;br&gt;Operator" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;fillColor=#f3f6fb;strokeColor=#344f67;strokeWidth=3;fontSize=32;">
-          <mxGeometry x="1283" y="648" width="207" height="314" as="geometry" />
-        </mxCell>
-        <mxCell id="uav_session" parent="1" edge="1" source="uav" target="session" style="html=1;strokeColor=#52738f;strokeWidth=5.2;endArrow=none;endFill=0;endSize=16;dashed=0;exitX=1.0000;exitY=0.1750;exitPerimeter=0;entryX=0.0000;entryY=0.5000;entryPerimeter=0;" value="">
-          <mxGeometry relative="1" as="geometry">
+        <mxCell id="uav_live" parent="1" edge="1" source="uav" target="live" style="html=1;strokeColor=#285674;strokeWidth=7;dashed=0;endArrow=none;endSize=15;exitX=1.0000;exitY=0.1341;exitPerimeter=0;entryX=0.0000;entryY=0.5000;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1">
             <Array as="points">
-              <mxPoint x="158" y="464" />
-              <mxPoint x="181" y="159" />
+              <mxPoint x="223" y="623" />
+              <mxPoint x="287" y="330" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="uav_live" parent="1" edge="1" source="uav" target="live" style="html=1;strokeColor=#52738f;strokeWidth=5.2;endArrow=none;endFill=0;endSize=16;dashed=0;exitX=1.0000;exitY=0.3833;exitPerimeter=0;entryX=0.0000;entryY=0.5000;entryPerimeter=0;" value="">
-          <mxGeometry relative="1" as="geometry">
+        <mxCell id="uav_loss" parent="1" edge="1" source="uav" target="loss" style="html=1;strokeColor=#285674;strokeWidth=7;dashed=0;endArrow=none;endSize=15;exitX=1.0000;exitY=0.3882;exitPerimeter=0;entryX=0.0000;entryY=0.5000;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1">
             <Array as="points">
-              <mxPoint x="158" y="514" />
-              <mxPoint x="181" y="352" />
+              <mxPoint x="223" y="748" />
+              <mxPoint x="287" y="632" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="uav_onboard" parent="1" edge="1" source="uav" target="onboard" style="html=1;strokeColor=#52738f;strokeWidth=5.2;endArrow=none;endFill=0;endSize=16;dashed=0;exitX=1.0000;exitY=0.5958;exitPerimeter=0;entryX=0.0000;entryY=0.5000;entryPerimeter=0;" value="">
-          <mxGeometry relative="1" as="geometry">
+        <mxCell id="uav_recover" parent="1" edge="1" source="uav" target="recover" style="html=1;strokeColor=#285674;strokeWidth=7;dashed=0;endArrow=none;endSize=15;exitX=1.0000;exitY=0.6118;exitPerimeter=0;entryX=0.0000;entryY=0.5000;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1">
             <Array as="points">
-              <mxPoint x="158" y="565" />
-              <mxPoint x="181" y="555" />
+              <mxPoint x="223" y="858" />
+              <mxPoint x="287" y="934" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="uav_recover" parent="1" edge="1" source="uav" target="recover" style="html=1;strokeColor=#52738f;strokeWidth=5.2;endArrow=none;endFill=0;endSize=16;dashed=0;exitX=1.0000;exitY=0.8083;exitPerimeter=0;entryX=0.0000;entryY=0.5000;entryPerimeter=0;" value="">
-          <mxGeometry relative="1" as="geometry">
+        <mxCell id="uav_periodic" parent="1" edge="1" source="uav" target="periodic" style="html=1;strokeColor=#285674;strokeWidth=7;dashed=0;endArrow=none;endSize=15;exitX=1.0000;exitY=0.8659;exitPerimeter=0;entryX=0.0000;entryY=0.5000;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1">
             <Array as="points">
-              <mxPoint x="158" y="616" />
-              <mxPoint x="181" y="762" />
+              <mxPoint x="223" y="983" />
+              <mxPoint x="287" y="1254" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="admin_session" parent="1" edge="1" source="session" target="admin" style="html=1;strokeColor=#344f67;strokeWidth=5.2;endArrow=none;endFill=0;endSize=16;dashed=0;exitX=1.0000;exitY=0.5000;exitPerimeter=0;entryX=0.0000;entryY=0.1338;entryPerimeter=0;" value="">
-          <mxGeometry relative="1" as="geometry">
+        <mxCell id="admin_view" parent="1" edge="1" source="admin" target="view" style="html=1;strokeColor=#55416c;strokeWidth=7;dashed=0;endArrow=none;endSize=15;exitX=0.0000;exitY=0.5000;exitPerimeter=0;entryX=1.0000;entryY=0.5000;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="loss_extend" parent="1" edge="1" source="loss" target="live" style="html=1;strokeColor=#32645c;strokeWidth=5;dashed=1;endArrow=open;endSize=15;exitX=0.5000;exitY=0.0000;exitPerimeter=0;entryX=0.5000;entryY=1.0000;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="restore_extend" parent="1" edge="1" source="recover" target="loss" style="html=1;strokeColor=#32645c;strokeWidth=5;dashed=1;endArrow=open;endSize=15;exitX=0.5000;exitY=0.0000;exitPerimeter=0;entryX=0.5000;entryY=1.0000;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="live_include" parent="1" edge="1" source="live" target="analyse" style="html=1;strokeColor=#32645c;strokeWidth=5;dashed=1;endArrow=open;endSize=15;exitX=1.0000;exitY=0.5000;exitPerimeter=0;entryX=0.1082;entryY=0.1912;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1">
             <Array as="points">
-              <mxPoint x="1187" y="159" />
-              <mxPoint x="1252" y="690" />
+              <mxPoint x="917" y="330" />
+              <mxPoint x="917" y="590" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="admin_saved" parent="1" edge="1" source="saved" target="admin" style="html=1;strokeColor=#344f67;strokeWidth=5.2;endArrow=none;endFill=0;endSize=16;dashed=0;exitX=1.0000;exitY=0.5000;exitPerimeter=0;entryX=0.0000;entryY=0.3121;entryPerimeter=0;" value="">
-          <mxGeometry relative="1" as="geometry">
+        <mxCell id="recovered_include" parent="1" edge="1" source="recover" target="analyse" style="html=1;strokeColor=#32645c;strokeWidth=5;dashed=1;endArrow=open;endSize=15;exitX=1.0000;exitY=0.5000;exitPerimeter=0;entryX=0.0000;entryY=0.5000;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1">
             <Array as="points">
-              <mxPoint x="1187" y="555" />
-              <mxPoint x="1252" y="746" />
+              <mxPoint x="952" y="934" />
+              <mxPoint x="952" y="632" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="admin_view" parent="1" edge="1" source="view" target="admin" style="html=1;strokeColor=#344f67;strokeWidth=5.2;endArrow=none;endFill=0;endSize=16;dashed=0;exitX=1.0000;exitY=0.5000;exitPerimeter=0;entryX=0.0000;entryY=0.4968;entryPerimeter=0;" value="">
-          <mxGeometry relative="1" as="geometry">
+        <mxCell id="periodic_include" parent="1" edge="1" source="periodic" target="analyse" style="html=1;strokeColor=#32645c;strokeWidth=5;dashed=1;endArrow=open;endSize=15;exitX=1.0000;exitY=0.5000;exitPerimeter=0;entryX=0.1082;entryY=0.8088;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1">
             <Array as="points">
-              <mxPoint x="1187" y="1147" />
-              <mxPoint x="1252" y="804" />
+              <mxPoint x="836" y="1254" />
+              <mxPoint x="836" y="1070" />
+              <mxPoint x="1030" y="1070" />
+              <mxPoint x="1030" y="674" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="admin_save" parent="1" edge="1" source="save" target="admin" style="html=1;strokeColor=#344f67;strokeWidth=5.2;endArrow=none;endFill=0;endSize=16;dashed=0;exitX=1.0000;exitY=0.5000;exitPerimeter=0;entryX=0.0000;entryY=0.6815;entryPerimeter=0;" value="">
-          <mxGeometry relative="1" as="geometry">
+        <mxCell id="automatic_include" parent="1" edge="1" source="analyse" target="auto" style="html=1;strokeColor=#32645c;strokeWidth=5;dashed=1;endArrow=open;endSize=15;exitX=0.5000;exitY=1.0000;exitPerimeter=0;entryX=0.5000;entryY=0.0000;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="detection_include" parent="1" edge="1" source="analyse" target="detect" style="html=1;strokeColor=#32645c;strokeWidth=5;dashed=1;endArrow=open;endSize=15;exitX=1.0000;exitY=0.5000;exitPerimeter=0;entryX=1.0000;entryY=0.5000;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1">
             <Array as="points">
-              <mxPoint x="1187" y="1338" />
-              <mxPoint x="1252" y="862" />
+              <mxPoint x="1667" y="632" />
+              <mxPoint x="1667" y="1254" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="admin_print" parent="1" edge="1" source="print" target="admin" style="html=1;strokeColor=#344f67;strokeWidth=5.2;endArrow=none;endFill=0;endSize=16;dashed=0;exitX=1.0000;exitY=0.5000;exitPerimeter=0;entryX=0.0000;entryY=0.8631;entryPerimeter=0;" value="">
-          <mxGeometry relative="1" as="geometry">
+        <mxCell id="save_include" parent="1" edge="1" source="analyse" target="save" style="html=1;strokeColor=#32645c;strokeWidth=5;dashed=1;endArrow=open;endSize=15;exitX=0.9291;exitY=0.2353;exitPerimeter=0;entryX=1.0000;entryY=0.5000;entryPerimeter=0;">
+          <mxGeometry as="geometry" relative="1">
             <Array as="points">
-              <mxPoint x="1187" y="1529" />
-              <mxPoint x="1252" y="919" />
+              <mxPoint x="1710" y="596" />
+              <mxPoint x="1710" y="1516" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="live_variant" parent="1" edge="1" source="live" target="session" style="html=1;strokeColor=#52738f;strokeWidth=3.8;endArrow=block;endFill=0;endSize=16;dashed=0;exitX=0.6860;exitY=0.0359;exitPerimeter=0;entryX=0.3532;entryY=0.9779;entryPerimeter=0;" value="">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="live" parent="1" vertex="1" value="&lt;b&gt;Live Monitoring&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:31px&quot;&gt;Stream after takeoff&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#edf5fa;strokeColor=#285674;strokeWidth=5;fontSize=40;">
+          <mxGeometry x="319.0" y="262" width="462" height="136" as="geometry" />
         </mxCell>
-        <mxCell id="periodic_variant" parent="1" edge="1" source="periodic" target="session" style="html=1;strokeColor=#52738f;strokeWidth=3.8;endArrow=block;endFill=0;endSize=16;dashed=0;exitX=0.3269;exitY=0.0310;exitPerimeter=0;entryX=0.6438;entryY=0.9789;entryPerimeter=0;" value="">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="loss" parent="1" vertex="1" value="&lt;b&gt;Record on Link Loss&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:31px&quot;&gt;Keep video on the UAV&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#edf5fa;strokeColor=#285674;strokeWidth=5;fontSize=40;">
+          <mxGeometry x="319.0" y="564" width="462" height="136" as="geometry" />
         </mxCell>
-        <mxCell id="record_on_loss" parent="1" edge="1" source="onboard" target="live" style="html=1;strokeColor=#32645c;strokeWidth=3.8;endArrow=open;endFill=0;endSize=16;dashed=1;exitX=0.5000;exitY=0.0000;exitPerimeter=0;entryX=0.5000;entryY=1.0000;entryPerimeter=0;" value="">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="recover" parent="1" vertex="1" value="&lt;b&gt;Recover Video&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:31px&quot;&gt;Send the missed segment&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#edf5fa;strokeColor=#285674;strokeWidth=5;fontSize=40;">
+          <mxGeometry x="319.0" y="866" width="462" height="136" as="geometry" />
         </mxCell>
-        <mxCell id="recover_on_return" parent="1" edge="1" source="recover" target="live" style="html=1;strokeColor=#32645c;strokeWidth=3.8;endArrow=open;endFill=0;endSize=16;dashed=1;exitX=0.9075;exitY=0.2104;exitPerimeter=0;entryX=0.9097;entryY=0.7865;entryPerimeter=0;" value="">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="644" y="720" />
-              <mxPoint x="644" y="398" />
-            </Array>
-          </mxGeometry>
+        <mxCell id="periodic" parent="1" vertex="1" value="&lt;b&gt;Periodic Recording&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:31px&quot;&gt;Save scheduled clips&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#edf5fa;strokeColor=#285674;strokeWidth=5;fontSize=40;">
+          <mxGeometry x="319.0" y="1186" width="462" height="136" as="geometry" />
         </mxCell>
-        <mxCell id="live_analysis" parent="1" edge="1" source="live" target="analyse" style="html=1;strokeColor=#32645c;strokeWidth=3.8;endArrow=open;endFill=0;endSize=16;dashed=1;exitX=1.0000;exitY=0.5000;exitPerimeter=0;entryX=0.2097;entryY=0.0929;entryPerimeter=0;" value="">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="720" y="352" />
-              <mxPoint x="720" y="674" />
-            </Array>
-          </mxGeometry>
+        <mxCell id="view" parent="1" vertex="1" value="&lt;b&gt;View Results&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:31px&quot;&gt;Detections and Track IDs&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#f4eff8;strokeColor=#55416c;strokeWidth=5;fontSize=40;">
+          <mxGeometry x="1102.0" y="262" width="536" height="136" as="geometry" />
         </mxCell>
-        <mxCell id="recovered_analysis" parent="1" edge="1" source="recover" target="analyse" style="html=1;strokeColor=#32645c;strokeWidth=3.8;endArrow=open;endFill=0;endSize=16;dashed=1;exitX=1.0000;exitY=0.5000;exitPerimeter=0;entryX=0.0000;entryY=0.5000;entryPerimeter=0;" value="">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="analyse" parent="1" vertex="1" value="&lt;b&gt;Analyse Video&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:31px&quot;&gt;Read frames in time order&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#f0f7f4;strokeColor=#32645c;strokeWidth=5;fontSize=40;">
+          <mxGeometry x="1102.0" y="564" width="536" height="136" as="geometry" />
         </mxCell>
-        <mxCell id="periodic_review" parent="1" edge="1" source="saved" target="periodic" style="html=1;strokeColor=#32645c;strokeWidth=3.8;endArrow=open;endFill=0;endSize=16;dashed=1;exitX=0.5000;exitY=0.0000;exitPerimeter=0;entryX=0.5000;entryY=1.0000;entryPerimeter=0;" value="">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="auto" parent="1" vertex="1" value="&lt;b&gt;Automatic Setup&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:31px&quot;&gt;Model, image size and rate&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#f0f7f4;strokeColor=#32645c;strokeWidth=5;fontSize=40;">
+          <mxGeometry x="1102.0" y="866" width="536" height="136" as="geometry" />
         </mxCell>
-        <mxCell id="saved_analysis" parent="1" edge="1" source="saved" target="analyse" style="html=1;strokeColor=#32645c;strokeWidth=3.8;endArrow=open;endFill=0;endSize=16;dashed=1;exitX=0.5000;exitY=1.0000;exitPerimeter=0;entryX=0.5000;entryY=0.0000;entryPerimeter=0;" value="">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="detect" parent="1" vertex="1" value="&lt;b&gt;Detect and Track&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:31px&quot;&gt;Class, box and Track ID&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#f0f7f4;strokeColor=#32645c;strokeWidth=5;fontSize=40;">
+          <mxGeometry x="1102.0" y="1186" width="536" height="136" as="geometry" />
         </mxCell>
-        <mxCell id="auto_required" parent="1" edge="1" source="analyse" target="auto" style="html=1;strokeColor=#32645c;strokeWidth=3.8;endArrow=open;endFill=0;endSize=16;dashed=1;exitX=0.5000;exitY=1.0000;exitPerimeter=0;entryX=0.5000;entryY=0.0000;entryPerimeter=0;" value="">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="save" parent="1" vertex="1" value="&lt;b&gt;Save Results&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:31px&quot;&gt;Annotated video and CSV&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;ellipse;fillColor=#f0f7f4;strokeColor=#32645c;strokeWidth=5;fontSize=40;">
+          <mxGeometry x="1102.0" y="1448" width="536" height="136" as="geometry" />
         </mxCell>
-        <mxCell id="detect_required" parent="1" edge="1" source="analyse" target="detect" style="html=1;strokeColor=#32645c;strokeWidth=3.8;endArrow=open;endFill=0;endSize=16;dashed=1;exitX=0.1977;exitY=0.8983;exitPerimeter=0;entryX=0.8126;entryY=0.1097;entryPerimeter=0;" value="">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="uav" parent="1" vertex="1" value="«actor»&lt;br&gt;&lt;b&gt;UAV&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:25px&quot;&gt;Video source&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;rounded=1;arcSize=7;fillColor=#edf5fa;strokeColor=#285674;strokeWidth=5;fontSize=46;">
+          <mxGeometry x="14" y="557" width="171" height="492" as="geometry" />
         </mxCell>
-        <mxCell id="track_required" parent="1" edge="1" source="analyse" target="track" style="html=1;strokeColor=#32645c;strokeWidth=3.8;endArrow=open;endFill=0;endSize=16;dashed=1;exitX=0.2645;exitY=0.9411;exitPerimeter=0;entryX=1.0000;entryY=0.5000;entryPerimeter=0;" value="">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="721" y="878" />
-              <mxPoint x="721" y="1147" />
-            </Array>
-          </mxGeometry>
+        <mxCell id="admin" parent="1" vertex="1" value="«actor»&lt;br&gt;&lt;b&gt;Admin&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:25px&quot;&gt;View only&lt;/span&gt;" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;rounded=1;arcSize=7;fillColor=#f4eff8;strokeColor=#55416c;strokeWidth=5;fontSize=46;">
+          <mxGeometry x="1855" y="218" width="171" height="224" as="geometry" />
         </mxCell>
-        <mxCell id="id_required" parent="1" edge="1" source="track" target="ids" style="html=1;strokeColor=#32645c;strokeWidth=3.8;endArrow=open;endFill=0;endSize=16;dashed=1;exitX=0.5000;exitY=1.0000;exitPerimeter=0;entryX=0.5000;entryY=0.0000;entryPerimeter=0;" value="">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="loss_extend_label" parent="1" vertex="1" value="«extend»&lt;br&gt;Link lost" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;text;fillColor=#ffffff;strokeColor=none;fontSize=26;rotation=0;">
+          <mxGeometry x="477.5" y="449.5" width="145" height="65" as="geometry" />
         </mxCell>
-        <mxCell id="record_on_loss_label" parent="1" vertex="1" value="«extend»&lt;br&gt;[Link lost]" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;text;fillColor=#ffffff;strokeColor=none;fontSize=23;">
-          <mxGeometry x="339.5" y="425.5" width="155" height="57" as="geometry" />
+        <mxCell id="restore_extend_label" parent="1" vertex="1" value="«extend»&lt;br&gt;Link returns" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;text;fillColor=#ffffff;strokeColor=none;fontSize=26;rotation=0;">
+          <mxGeometry x="477.5" y="750.5" width="145" height="65" as="geometry" />
         </mxCell>
-        <mxCell id="recover_on_return_label" parent="1" vertex="1" value="«extend»&lt;br&gt;[Link restored]" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;text;fillColor=#ffffff;strokeColor=none;fontSize=23;">
-          <mxGeometry x="560.5" y="620.5" width="155" height="57" as="geometry" />
+        <mxCell id="live_include_label" parent="1" vertex="1" value="«include»" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;text;fillColor=#ffffff;strokeColor=none;fontSize=26;rotation=0;">
+          <mxGeometry x="844.5" y="431.5" width="145" height="35" as="geometry" />
         </mxCell>
-        <mxCell id="live_analysis_label" parent="1" vertex="1" value="«include»" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;text;fillColor=#ffffff;strokeColor=none;fontSize=23;">
-          <mxGeometry x="666.0" y="456.5" width="118" height="29" as="geometry" />
+        <mxCell id="recovered_include_label" parent="1" vertex="1" value="«include»" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;text;fillColor=#ffffff;strokeColor=none;fontSize=26;rotation=0;">
+          <mxGeometry x="880.5" y="759.5" width="145" height="35" as="geometry" />
         </mxCell>
-        <mxCell id="recovered_analysis_label" parent="1" vertex="1" value="«include»" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;text;fillColor=#ffffff;strokeColor=none;fontSize=23;">
-          <mxGeometry x="622.0" y="722.5" width="118" height="29" as="geometry" />
+        <mxCell id="periodic_include_label" parent="1" vertex="1" value="«include»" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;text;fillColor=#ffffff;strokeColor=none;fontSize=26;rotation=0;">
+          <mxGeometry x="859.5" y="1052.5" width="145" height="35" as="geometry" />
         </mxCell>
-        <mxCell id="periodic_review_label" parent="1" vertex="1" value="«extend»&lt;br&gt;[On request]" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;text;fillColor=#ffffff;strokeColor=none;fontSize=23;">
-          <mxGeometry x="867.5" y="423.5" width="155" height="57" as="geometry" />
+        <mxCell id="automatic_include_label" parent="1" vertex="1" value="«include»" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;text;fillColor=#ffffff;strokeColor=none;fontSize=26;rotation=0;">
+          <mxGeometry x="1297.5" y="765.5" width="145" height="35" as="geometry" />
         </mxCell>
-        <mxCell id="saved_analysis_label" parent="1" vertex="1" value="«include»" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;text;fillColor=#ffffff;strokeColor=none;fontSize=23;">
-          <mxGeometry x="886.0" y="643.5" width="118" height="29" as="geometry" />
+        <mxCell id="detection_include_label" parent="1" vertex="1" value="«include»" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;text;fillColor=#ffffff;strokeColor=none;fontSize=26;rotation=270;">
+          <mxGeometry x="1594.5" y="1040.5" width="145" height="35" as="geometry" />
         </mxCell>
-        <mxCell id="auto_required_label" parent="1" vertex="1" value="«include»" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;text;fillColor=#ffffff;strokeColor=none;fontSize=23;">
-          <mxGeometry x="886.0" y="843.5" width="118" height="29" as="geometry" />
+        <mxCell id="save_include_label" parent="1" vertex="1" value="«include»" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;text;fillColor=#ffffff;strokeColor=none;fontSize=26;rotation=270;">
+          <mxGeometry x="1637.5" y="1388.5" width="145" height="35" as="geometry" />
         </mxCell>
-        <mxCell id="detect_required_label" parent="1" vertex="1" value="«include»" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;text;fillColor=#ffffff;strokeColor=none;fontSize=23;">
-          <mxGeometry x="598.0" y="850.5" width="118" height="29" as="geometry" />
-        </mxCell>
-        <mxCell id="track_required_label" parent="1" vertex="1" value="«include»" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;text;fillColor=#ffffff;strokeColor=none;fontSize=23;">
-          <mxGeometry x="649.0" y="1038.5" width="118" height="29" as="geometry" />
-        </mxCell>
-        <mxCell id="id_required_label" parent="1" vertex="1" value="«include»" style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;text;fillColor=#ffffff;strokeColor=none;fontSize=23;">
-          <mxGeometry x="358.0" y="1225.5" width="118" height="29" as="geometry" />
-        </mxCell>
-        <mxCell id="legend" parent="1" vertex="1" value="Solid lines show actor participation. Hollow triangles mark the two capture modes.&lt;br&gt;«include» marks a shared task. «extend» marks an action triggered by a condition." style="html=1;whiteSpace=wrap;fontFamily=Arial;fontColor=#203b38;text;fillColor=none;strokeColor=none;fontSize=25;">
-          <mxGeometry x="84" y="1628" width="1332" height="77" as="geometry" />
+        <mxCell id="key" parent="1" vertex="1" value="Solid lines show actor roles. Dashed arrows link use cases." style="shape=text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;fontFamily=Arial;fontSize=30;fontColor=#203B38;fontStyle=0;">
+          <mxGeometry x="300" y="1663" width="1440" height="60" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
